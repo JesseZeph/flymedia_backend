@@ -4,7 +4,7 @@ const {verifyAndAuthorization, verifySuperAdmin, verifyAdmin, } = require('../mi
 
 
 router.post('/', verifyAndAuthorization, companyController.addCompany);
-router.get('/:id', verifySuperAdmin,  companyController.getCompany);
+router.get('/:id', verifyAndAuthorization,  companyController.getCompany);
 router.patch('/:id', verifySuperAdmin, companyController.verificationStatus);
 router.get('/', verifyAdmin, verifySuperAdmin, companyController.getAllCompany);
 

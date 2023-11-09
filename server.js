@@ -10,6 +10,7 @@ const userRouter = require('./routes/user')
 const companyRouter = require('./routes/company')
 
 const uploadRoute = require('./routes/routerUpload')
+const jobSpec = require('./routes/jobspec')
 
 
 
@@ -33,6 +34,7 @@ app.use('/', authRouter);
 app.use('/api/users', userRouter )
 app.use('/api/company', companyRouter )
 app.use('/api/logo', uploadRoute)
+app.use('/api/jobSpec',jobSpec )
 
 
 

@@ -29,7 +29,7 @@ module.exports = {
 
     getAllCompany: async (req, res) => {
         try {
-            const company = await Company.find({}, { v__: 0 })
+            const company = await Company.find({}, { __v: 0 })
             res.status(200).json(company)
         } catch (error) {
             res.status(500).json({ status: false, message: error.message });  
@@ -40,7 +40,7 @@ module.exports = {
         const companyId = req.params.id;
 
         try {
-            const company = await Company.findById(companyId)
+            const company = await Company.findById({_id: companyId})
             if(!company) {
                 return res.status(404).json({status: false, message: "Company not found!"})
             }    
@@ -54,7 +54,7 @@ module.exports = {
         const companyId = req.params.id;
 
         try {
-            const company = await Company.findById(companyId)
+            const company = await Company.findById({_id: companyId})
             if(!company) {
                 return res.status(404).json({status: false, message: "company not found!"})
             }
