@@ -1,0 +1,11 @@
+const router = require('express').Router();
+const InfluencerProfileController = require('../controller/influencerProfileController')
+const {verifyInfluencer } = require('../middleware/verifyToken')
+const upload = require('../middleware/multer');
+
+router.post('/', verifyInfluencer, upload.single('influencerImage'),InfluencerProfileController.uploadProfilePhoto )
+router.get('/:id', verifyInfluencer, InfluencerProfileController.getInfluencerProfile)
+router.put('/:id', verifyInfluencer, upload.single('influencerImage'), InfluencerProfileController.updateInfluencerProfile);
+
+module.exports = router;
+

@@ -32,8 +32,7 @@ module.exports = {
                         email: user.email,
                         password: CryptoJS.AES.encrypt(user.password, process.env.SECRET).toString(),
                         uid: userResponse.uid,
-                        userType: 'Client'
-
+                        userType: user.userType || 'Client'
                     })
 
                     await newUser.save();
@@ -46,6 +45,120 @@ module.exports = {
 
         }
     },
+
+    createInfluencer: async (req, res) => {
+        const influencer = req.body;
+
+        try {
+            await admin.auth().getUserByEmail(influencer.email);
+
+            res.status(400).json({ message: 'Email already registered' })
+        } catch (error) {
+            if (error.code === 'auth/user-not-found') {
+                try {
+                    const userResponse = await admin.auth().createUser({
+                        email: influencer.email,
+                        password: influencer.password,
+                        emailVerified: false,
+                        disabled: false,
+                    });
+
+                    console.log(userResponse.uid);
+
+                    const newInfluencer = new User({
+                        fullname: influencer.fullname,
+                        email: influencer.email,
+                        password: CryptoJS.AES.encrypt(influencer.password, process.env.SECRET).toString(),
+                        uid: userResponse.uid,
+                        userType: 'Influencer'
+                    })
+
+                    await newInfluencer.save();
+                    res.status(201).json({ status: true })
+                } catch (error) {
+                    console.error("Error saving user to mongoDB", error);
+                    res.status(500).json({ status: false, error: "Error creating user" })
+                }
+            }
+        }
+    },
+
+    createAdmin: async (req, res) => {
+        const flyAdmin = req.body;
+
+        try {
+            await admin.auth().getUserByEmail(flyAdmin.email);
+
+            res.status(400).json({ message: 'Email already registered' })
+        } catch (error) {
+            if (error.code === 'auth/user-not-found') {
+                try {
+                    const userResponse = await admin.auth().createUser({
+                        email: flyAdmin.email,
+                        password: flyAdmin.password,
+                        emailVerified: false,
+                        disabled: false,
+                    });
+
+                    console.log(userResponse.uid);
+
+                    const newFlyAdmin = new User({
+                        fullname: flyAdmin.fullname,
+                        email: flyAdmin.email,
+                        password: CryptoJS.AES.encrypt(flyAdmin.password, process.env.SECRET).toString(),
+                        uid: userResponse.uid,
+                        userType: 'Admin'
+
+                    })
+
+                    await newFlyAdmin.save();
+                    res.status(201).json({ status: true })
+                } catch (error) {
+                    console.error("Error saving user to mongoDB", error);
+                    res.status(500).json({ status: false, error: "Error creating user" })
+                }
+            }
+        }
+    },
+
+    createSuperAdmin: async (req, res) => {
+        const superAdmin = req.body;
+
+        try {
+            await admin.auth().getUserByEmail(superAdmin.email);
+
+            res.status(400).json({ message: 'Email already registered' })
+        } catch (error) {
+            if (error.code === 'auth/user-not-found') {
+                try {
+                    const userResponse = await admin.auth().createUser({
+                        email: superAdmin.email,
+                        password: superAdmin.password,
+                        emailVerified: false,
+                        disabled: false,
+                    });
+
+                    console.log(userResponse.uid);
+
+                    const newSuperAdmin = new User({
+                        fullname: superAdmin.fullname,
+                        email: superAdmin.email,
+                        password: CryptoJS.AES.encrypt(superAdmin.password, process.env.SECRET).toString(),
+                        uid: userResponse.uid,
+                        userType: 'SuperAdmin'
+                    })
+
+                    await newSuperAdmin.save();
+                    res.status(201).json({ status: true })
+                } catch (error) {
+                    console.error("Error saving user to mongoDB", error);
+                    res.status(500).json({ status: false, error: "Error creating user" })
+                }
+            }
+        }
+    },
+
+
 
     loginUser: async (req, res) => {
         try {

@@ -1,32 +1,50 @@
-const Company = require('../models/Company')
+const Company = require('../models/VerifyCompany')
+const User = require('../models/User');
+
 
 module.exports = {
+
     addCompany: async (req, res) => {
-
-        const newCompany = new Company(req.body);
-
         try {
+            const userId = req.user._id;
+            const newCompany = new Company({
+                ...req.body,
+                user: userId
+            });
             await newCompany.save();
             res.status(200).json({message: "Company Details added successfuly"})
         } catch (error) {
-            res.status(500).json({message: "Adding Company Details added failed"})
+            console.error(error);
+            res.status(500).json({ message: `Adding Company Details failed. Error: ${error.message}` });
         }
     },
-
     verificationStatus: async (req, res) => {
-
         const companyId = req.params.id;
 
         try {
-            const company = await Company.findById(companyId)
-            company.isVerified = !company.isVerified
-            await company.save()
-            res.status(200).json({status: true, message: "Verifification successfully toggled", isVerified: company.isVerified})
+            const adminUser = await User.findById(req.user.id);
+
+            if (!adminUser || !adminUser.userType ==="SuperAdmin") {
+                return res.status(403).json({ status: false, message: "Unauthorized. Only admins can verify companies." });
+            }
+
+            const company = await Company.findById(companyId);
+
+            if (!company) {
+                return res.status(404).json({ status: false, message: "Company not found!" });
+            }
+            
+            company.isVerified = !company.isVerified;
+            await company.save();
+
+            res.status(200).json({ status: true, message: `Company verification toggled. New status: ${company.isVerified}` });
+
+
         } catch (error) {
-            res.status(500).json({status: false, message: "Error toggling company verification"})
+            console.error(error);
+            res.status(500).json({ status: false, message: "Error toggling company verification" });
         }
     },
-
     getAllCompany: async (req, res) => {
         try {
             const company = await Company.find({}, { __v: 0 })
@@ -35,7 +53,6 @@ module.exports = {
             res.status(500).json({ status: false, message: error.message });  
         }
     },
-
     getCompany: async (req, res) => {
         const companyId = req.params.id;
 
@@ -52,7 +69,6 @@ module.exports = {
 
     deleteCompany: async(req, res) => {
         const companyId = req.params.id;
-
         try {
             const company = await Company.findById({_id: companyId})
             if(!company) {
@@ -64,4 +80,5 @@ module.exports = {
             res.status(500).json({status: false, message: "Error deleting company"});            
         }
     },
+
 }
