@@ -26,7 +26,7 @@ module.exports = {
             const nicheIds = await Promise.all(nichePromises)
 
             const newInfluencerProfile = new InfluencerProfile({
-                cloudinaryURL: cloudinaryResult.secure_url,
+                imageURL: cloudinaryResult.secure_url,
                 firstAndLastName: req.body.firstAndLastName,
                 location: req.body.location,
                 noOfTikTokFollowers: req.body.noOfTikTokFollowers,
@@ -41,8 +41,8 @@ module.exports = {
             res.status(200).json({
                 success: true,
                 message: 'Profile Updated!',
-                cloudinaryURL: cloudinaryResult.secure_url,
-                mongoDBURL: savedInfluencerProfile.cloudinaryURL, 
+                imageURL: cloudinaryResult.secure_url,
+                mongoDBURL: savedInfluencerProfile.imageURL, 
             });
         } catch (error) {
             console.log(error);
@@ -75,7 +75,7 @@ module.exports = {
                 return res.status(404).json({ success: false, message: 'Influencer profile not found' });
             }
 
-            existingProfile.cloudinaryURL = req.file ? (await cloudinary.uploader.upload(req.file.path)).secure_url : existingProfile.cloudinaryURL;
+            existingProfile.imageURL = req.file ? (await cloudinary.uploader.upload(req.file.path)).secure_url : existingProfile.imageURL;
             existingProfile.firstAndLastName = req.body.firstAndLastName || existingProfile.firstAndLastName;
             existingProfile.location = req.body.location || existingProfile.location;
             existingProfile.noOfTikTokFollowers = req.body.noOfTikTokFollowers || existingProfile.noOfTikTokFollowers;

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const InfluencerProfileSchema = new mongoose.Schema({
-    cloudinaryURL: {
+    imageURL: {
         type: String,
         required: true
     },

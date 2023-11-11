@@ -8,7 +8,4 @@ router.get('/:id', verifyAndAuthorization,  verifyCompanyController.getCompany);
 router.patch('/:id', verifySuperAdmin, verifyCompanyController.verificationStatus);
 router.get('/', verifyAdmin, verifySuperAdmin, verifyCompanyController.getAllCompany);
 
-
-
-
 module.exports = router;
