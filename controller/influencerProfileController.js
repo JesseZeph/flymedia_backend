@@ -58,21 +58,6 @@ module.exports = {
         }
     },
 
-    // getInfluencerProfile: async (req, res) => {
-    //     const getInfluencerProfileId = req.params.id;
-
-    //     try {
-    //         const influencerProfile = await InfluencerProfile.findOne({_id: getInfluencerProfileId}, {__v: 0})
-    //             if(influencerProfile) {
-    //                 return res.status(200).json({influencerProfile})
-    //             }else {
-    //                 return res.status(404).json({status: false, message: "Logo with details not found"})
-    //             }
-    //     } catch (error) {
-    //         console.err("Error while retrieving logo with job description");
-    //         res.status(500).json({ status: false, message: error.message });
-    //     }
-    // },
     updateInfluencerProfile: async (req, res) => {
         const influencerId = req.params.id;
 
@@ -145,7 +130,7 @@ module.exports = {
                 return res.status(404).json({ success: false, message: "Influencer profile not found or unauthorized access" });
             }
         } catch (error) {
-            console.error("Error while retrieving influencer profile:", error);
+            console.error("Error while retrieving influencer profile!", error);
             res.status(500).json({ success: false, message: error.message });
         }
     },

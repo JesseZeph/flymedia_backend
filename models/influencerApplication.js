@@ -20,7 +20,6 @@ const InfluencerApplicationSchema = new mongoose.Schema({
         ref: 'JobSpecification',
         required: true,
     },
-    // other fields as needed
     createdAt: {
         type: Date,
         default: Date.now,

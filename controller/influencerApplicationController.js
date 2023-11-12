@@ -1,5 +1,4 @@
 const InfluencerApplication = require('../models/influencerApplication');
-const influencerProfile = require('../models/InfluencerProfile')
 const CampaignUpload = require('../models/CampaignUpload')
 const JobSpecification = require('../models/JobSpecification');
 const InfluencerProfile = require('../models/InfluencerProfile');
@@ -17,6 +16,10 @@ module.exports = {
 
             if (!influencer || !campaign || !jobspec) {
                 return res.status(404).json({ success: false, message: 'Influencer, campaign, or job specification not found' });
+            }
+
+            if(!influencer.imageURL || !influencer.firstAndLastName || !influencer.location || !influencer.noOfTikTokFollowers || !influencer.noOfTikTokLikes || !influencer.niches || !influencer.bio) {
+                return res.status(400).json({success: false, message: 'Complete your influencer profile before applying for campaigns'});
             }
 
             const newApplication = new InfluencerApplication({
