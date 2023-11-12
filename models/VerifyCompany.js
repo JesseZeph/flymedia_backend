@@ -8,16 +8,7 @@ const CompanySchema = new mongoose.Schema({
     companyEmail: {type: String, required: true},
     memberContact: {type: String, required: true},
     isVerified: {type: Boolean, default: false},
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-        validate: {
-            validator: function(userId) {
-                return userId !== undefined;
-            },
-            message: "The user field is required."
-        }
+    userId: {type: mongoose.Schema.Types.ObjectId, required: true,  unique: true
     }
 }, {timestamps: true});
 

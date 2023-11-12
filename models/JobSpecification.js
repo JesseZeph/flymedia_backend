@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const JobSpecificationSchema = new mongoose.Schema({
+  company: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'VerifyCompany',
+    required: true,
+},
   jobTitle: { type: String, required: true },
   country: { type: String, required: true },
   rateFrom: { type: String, required: true },

@@ -6,13 +6,23 @@ module.exports = {
 
     addCompany: async (req, res) => {
         try {
-            const userId = req.user._id;
+            const existingUser = await User.findById(req.user.id);
+
+            if (!existingUser) {
+                return res.status(403).json({ message: "Only registered users can apply for company verification." });
+            }
+
             const newCompany = new Company({
-                ...req.body,
-                user: userId
+                companyName: req.body.companyName,
+                companyHQ: req.body.companyHQ,
+                website: req.body.website,
+                companyEmail: req.body.companyEmail,
+                memberContact: req.body.memberContact,
+                userId: req.user.id
             });
+
             await newCompany.save();
-            res.status(200).json({message: "Company Details added successfuly"})
+            res.status(200).json({ message: "Company Details added successfully" });
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: `Adding Company Details failed. Error: ${error.message}` });

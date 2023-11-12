@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const companyDetailsSchema = new mongoose.Schema({
+    company: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'VerifyCompany',
+        required: true,
+    },
     imageUrl: {
         type: String,
         required: true,
@@ -11,6 +16,6 @@ const companyDetailsSchema = new mongoose.Schema({
     },
 });
 
-const CompanyDetails = mongoose.model('CompanyDetails', companyDetailsSchema);
+const CompanyDetails = mongoose.model('CampaignDetails', companyDetailsSchema);
 
 module.exports = CompanyDetails;

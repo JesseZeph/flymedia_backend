@@ -19,21 +19,27 @@ module.exports = {
 
             if (!req.file) {
                 return res.status(400).json({ success: false, message: 'No file provided' });
-            }       
+            }
+            
             const newImage = new CampaignUpload({
+                company: companyId, 
                 companyDescription: req.body.companyDescription,
                 imageUrl: cloudinaryResult.secure_url,
             });
 
             const savedImage = await newImage.save();
 
+            const populatedImage = await CampaignUpload.findById(savedImage._id).populate('company');
+
+
             res.status(200).json({
                 success: true,
                 message: 'File Uploaded!',
                 imageUrl: cloudinaryResult.secure_url,
-                mongoDBURL: savedImage.imageUrl, 
+                mongoDBURL: populatedImage.imageUrl, 
             });
         } catch (error) {
+            console.error(error);
             return res.status(500).json({ success: false, message: 'Error uploading or saving the file' });
         }
     },
@@ -42,7 +48,7 @@ module.exports = {
         const logoWithDescId = req.params.id;
 
         try {
-            const logoWithDesc = await CampaignUpload.findById({_id: logoWithDescId })
+            const logoWithDesc = await CampaignUpload.findById(logoWithDescId).populate('company');
                 if(logoWithDesc) {
                     return res.status(200).json({logoWithDesc})
                 }else {
@@ -55,7 +61,7 @@ module.exports = {
     },
     getAllCampaignImageAndDesc: async (req, res) => {
                 try {
-                    const logoWithDesc = await CampaignUpload.find({}, {__v: 0});
+                    const logoWithDesc = await CampaignUpload.find({}, { __v: 0 }).populate('company');
                     res.status(200).json(logoWithDesc);
                 } catch (error) {
                     res.status(500).json({ status: false, message: error.message });

@@ -3,7 +3,7 @@ const InfluencerProfileController = require('../controller/influencerProfileCont
 const {verifyInfluencer } = require('../middleware/verifyToken')
 const upload = require('../middleware/multer');
 
-router.post('/', verifyInfluencer, upload.single('influencerImage'),InfluencerProfileController.uploadProfilePhoto )
+router.post('/:userId', verifyInfluencer, upload.single('influencerImage'),InfluencerProfileController.uploadProfilePhoto )
 router.get('/:id', verifyInfluencer, InfluencerProfileController.getInfluencerProfile)
 router.put('/:id', verifyInfluencer, upload.single('influencerImage'), InfluencerProfileController.updateInfluencerProfile);
 

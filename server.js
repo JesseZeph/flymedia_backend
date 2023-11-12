@@ -15,6 +15,9 @@ const uploadRouter = require('./routes/campaingnUpload')
 const jobSpecRouter = require('./routes/jobspec')
 const influencerProfileRouter = require('./routes/influencerProfile');
 const nicheRouter = require('./routes/niche')
+const previewCampaignRouter = require('./routes/previewCampagn')
+const publishCampaignRouter = require('./routes/publishCampaign')
+const influencerApplicationRouter = require('./routes/influencerApplication')
 
 dotenv.config();
 
@@ -35,7 +38,7 @@ app.use(helmet());
 app.use(sanitize());
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 40 * 60 * 1000,
   max: 10,
   message: 'Too many requests',
 })
@@ -49,6 +52,8 @@ app.use('/api/uploadCampaign', uploadRouter)
 app.use('/api/jobSpec',jobSpecRouter )
 app.use('/api/influencerProfile',influencerProfileRouter )
 app.use('/api/niches', nicheRouter);
-
+app.use('/api/preview', previewCampaignRouter);
+app.use('/api/publish', publishCampaignRouter);
+app.use('/api/influencer', influencerApplicationRouter)
 
 app.listen(process.env.PORT || port, () => console.log(`Flymedia is listening to port ${process.env.PORT}!`))

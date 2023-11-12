@@ -9,6 +9,13 @@ module.exports = {
         }
 
         try {
+
+            const userId = req.user.id;
+
+            if (!userId) {
+                return res.status(403).json({ message: "Unauthorized. Only registered users can update profile." });
+            }
+
             const cloudinaryResult = await cloudinary.uploader.upload(req.file.path);
 
             const selectedNicheNames = req.body.niches;
@@ -26,11 +33,12 @@ module.exports = {
             const nicheIds = await Promise.all(nichePromises)
 
             const newInfluencerProfile = new InfluencerProfile({
+                userId: userId, 
                 imageURL: cloudinaryResult.secure_url,
                 firstAndLastName: req.body.firstAndLastName,
                 location: req.body.location,
                 noOfTikTokFollowers: req.body.noOfTikTokFollowers,
-                noOfTikTokLikes:req.body.noOfTikTokLikes,
+                noOfTikTokLikes: req.body.noOfTikTokLikes,
                 postsViews: req.body.postsViews,
                 niches: nicheIds,
                 bio: req.body.bio,
@@ -50,29 +58,38 @@ module.exports = {
         }
     },
 
-    getInfluencerProfile: async (req, res) => {
-        const getInfluencerProfileId = req.params.id;
+    // getInfluencerProfile: async (req, res) => {
+    //     const getInfluencerProfileId = req.params.id;
 
-        try {
-            const influencerProfile = await InfluencerProfile.findOne({_id: getInfluencerProfileId}, {__v: 0})
-                if(influencerProfile) {
-                    return res.status(200).json({influencerProfile})
-                }else {
-                    return res.status(404).json({status: false, message: "Logo with details not found"})
-                }
-        } catch (error) {
-            console.err("Error while retrieving logo with job description");
-            res.status(500).json({ status: false, message: error.message });
-        }
-    },
+    //     try {
+    //         const influencerProfile = await InfluencerProfile.findOne({_id: getInfluencerProfileId}, {__v: 0})
+    //             if(influencerProfile) {
+    //                 return res.status(200).json({influencerProfile})
+    //             }else {
+    //                 return res.status(404).json({status: false, message: "Logo with details not found"})
+    //             }
+    //     } catch (error) {
+    //         console.err("Error while retrieving logo with job description");
+    //         res.status(500).json({ status: false, message: error.message });
+    //     }
+    // },
     updateInfluencerProfile: async (req, res) => {
         const influencerId = req.params.id;
 
         try {
+            const userId = req.user.id; 
+            if (!userId) {
+                return res.status(403).json({ success: false, message: "Unauthorized. Only registered users can update their profile." });
+            }
+
             let existingProfile = await InfluencerProfile.findById(influencerId);
 
             if (!existingProfile) {
                 return res.status(404).json({ success: false, message: 'Influencer profile not found' });
+            }
+
+            if (existingProfile.userId.toString() !== userId.toString()) {
+                return res.status(403).json({ success: false, message: "Unauthorized. You don't have permission to update this profile." });
             }
 
             existingProfile.imageURL = req.file ? (await cloudinary.uploader.upload(req.file.path)).secure_url : existingProfile.imageURL;
@@ -108,6 +125,28 @@ module.exports = {
         } catch (error) {
             console.log(error);
             return res.status(500).json({ success: false, message: 'Error updating the influencer profile' });
+        }
+    },
+    getInfluencerProfile: async (req, res) => {
+        const influencerProfileId = req.params.id;
+
+        try {
+            const userId = req.user.id; 
+
+            if (!userId) {
+                return res.status(403).json({ success: false, message: "Unauthorized. Only registered users can access profiles." });
+            }
+
+            const influencerProfile = await InfluencerProfile.findOne({ _id: influencerProfileId, userId: userId }, { __v: 0 });
+
+            if (influencerProfile) {
+                return res.status(200).json({ success: true, influencerProfile });
+            } else {
+                return res.status(404).json({ success: false, message: "Influencer profile not found or unauthorized access" });
+            }
+        } catch (error) {
+            console.error("Error while retrieving influencer profile:", error);
+            res.status(500).json({ success: false, message: error.message });
         }
     },
     

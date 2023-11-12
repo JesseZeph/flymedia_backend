@@ -34,6 +34,15 @@ const InfluencerProfileSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    userId: {type: mongoose.Schema.Types.ObjectId, required: true},
+
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+        unique: true
+    },
+
 });
 
 module.exports = mongoose.model('InfluencerProfile', InfluencerProfileSchema);
