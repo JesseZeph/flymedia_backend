@@ -8,7 +8,11 @@ router.post('/register/admin', authController.createAdmin);
 router.post('/register/superAdmin', authController.createSuperAdmin);
 router.post('/login', authController.loginUser);
 router.post('/forgotPassword', authController.forgotPassword);
-router.patch('/resetPassword/:token', authController.resetPassword);
+router.post('/verifyPasswordReset', authController.verifyPasswordResetCode);
+
+router.patch('/resetPassword', authController.changePassword);
+router.post('/verifyEmail/:id', authController.verifyUserEmail);
+router.post('/resendVerification/:id', authController.resendVerificationCode);
 
 
 module.exports = router;

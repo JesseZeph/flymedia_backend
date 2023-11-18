@@ -99,6 +99,23 @@ module.exports = {
                 existingProfile.niches = await Promise.all(nichePromises);
             }
 
+            if (req.body.rating && req.body.rating.stars) {
+                const ratingUserId = userId;
+
+                // Check if the user is not the influencer themselves
+                if (existingProfile.userId.toString() !== ratingUserId.toString()) {
+                    const rating = {
+                        userId: ratingUserId,
+                        stars: req.body.rating.stars,
+                    };
+
+                    existingProfile.ratings.push(rating);
+                } else {
+                    return res.status(400).json({ success: false, message: "Influencers cannot rate themselves." });
+                }
+            }
+
+            
             const updatedInfluencerProfile = await existingProfile.save();
 
             res.status(200).json({
@@ -113,26 +130,49 @@ module.exports = {
         }
     },
     getInfluencerProfile: async (req, res) => {
-        const influencerProfileId = req.params.id;
-
         try {
-            const userId = req.user.id; 
-
-            if (!userId) {
+            if (!req.user || !req.user.id) {
                 return res.status(403).json({ success: false, message: "Unauthorized. Only registered users can access profiles." });
             }
-
-            const influencerProfile = await InfluencerProfile.findOne({ _id: influencerProfileId, userId: userId }, { __v: 0 });
-
+    
+            const userId = req.user.id;
+            const influencerProfileId = req.params.id;
+    
+            const influencerProfile = await InfluencerProfile.findOne({ _id: influencerProfileId, userId }, { __v: 0 });
+    
             if (influencerProfile) {
                 return res.status(200).json({ success: true, influencerProfile });
             } else {
                 return res.status(404).json({ success: false, message: "Influencer profile not found or unauthorized access" });
             }
         } catch (error) {
-            console.error("Error while retrieving influencer profile!", error);
-            res.status(500).json({ success: false, message: error.message });
+            console.error("Error while retrieving influencer profile:", error);
+            return res.status(500).json({ success: false, message: "Error retrieving influencer profile", error: error.message });
         }
     },
+
+    displayInfluencerProfile: async (req, res) => {
+        try {
+            // Ensure the user is registered and has an ID
+            // if (!req.user || !req.user.id) {
+            //     return res.status(403).json({ success: false, message: "Unauthorized. Only registered users can access profiles." });
+            // }
+
+            const influencerProfileId = req.params.id;
+
+            const influencerProfile = await InfluencerProfile.findOne({ _id: influencerProfileId }, { __v: 0 });
+
+            if (!influencerProfile) {
+                return res.status(404).json({ success: false, message: "Influencer profile not found" });
+            }
+
+            return res.status(200).json({ success: true, influencerProfile });
+        } catch (error) {
+            console.error("Error while retrieving influencer profile:", error);
+            return res.status(500).json({ success: false, message: "Error retrieving influencer profile", error: error.message });
+        }
+    },
+    
+    
     
 };

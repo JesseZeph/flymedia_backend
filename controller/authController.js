@@ -3,9 +3,55 @@ const CryptoJS = require('crypto-js');
 const jwt = require('jsonwebtoken');
 const admin = require('firebase-admin');
 const sgMail = require("@sendgrid/mail")
-const crypto = require('crypto')
 
 
+async function sendVerificationCode(email, code, type) {
+    const subject = type === 'email' ? 'Email Verification Code' : 'Password Reset Code';
+    const body = `Your ${subject.toLowerCase()} is: ${code}`;
+
+    const msg = {
+        to: email,
+        from: {
+            email: 'bobcatzephyr@gmail.com',
+            name: 'Flymedia',
+        },
+        subject: subject,
+        text: body,
+    };
+
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+    try {
+        await sgMail.send(msg);
+        console.log(`${subject} sent successfully`);
+    } catch (error) {
+        console.error(`Error sending ${type} verification code`, error);
+        throw error;
+    }
+}
+
+async function createUserInDatabase(user, userType) {
+    const userResponse = await admin.auth().createUser({
+        email: user.email,
+        password: user.password,
+        emailVerified: false,
+        disabled: false,
+    });
+
+    const newUser = new User({
+        fullname: user.fullname,
+        email: user.email,
+        password: CryptoJS.AES.encrypt(user.password, process.env.SECRET).toString(),
+        uid: userResponse.uid,
+        userType: userType || 'Client',
+    });
+
+    newUser.verificationCode = newUser.generateVerificationCode();
+    await newUser.save();
+
+    sendVerificationCode(user.email, newUser.verificationCode, 'email');
+    return newUser;
+}
 
 module.exports = {
     createUser: async (req, res) => {
@@ -13,36 +59,17 @@ module.exports = {
 
         try {
             await admin.auth().getUserByEmail(user.email);
-
-            res.status(400).json({ message: 'Email already registered' })
+            res.status(400).json({ message: 'Email already registered' });
         } catch (error) {
             if (error.code === 'auth/user-not-found') {
                 try {
-                    const userResponse = await admin.auth().createUser({
-                        email: user.email,
-                        password: user.password,
-                        emailVerified: false,
-                        disabled: false,
-                    });
-
-                    console.log(userResponse.uid);
-
-                    const newUser = new User({
-                        fullname: user.fullname,
-                        email: user.email,
-                        password: CryptoJS.AES.encrypt(user.password, process.env.SECRET).toString(),
-                        uid: userResponse.uid,
-                        userType: user.userType || 'Client'
-                    })
-
-                    await newUser.save();
-                    res.status(201).json({ status: true })
+                    const newUser = await createUserInDatabase(user, user.userType);
+                    res.status(201).json({ status: true });
                 } catch (error) {
-                    console.error("Error saving user to mongoDB", error);
-                    res.status(500).json({ status: false, error: "Error creating user" })
+                    console.error('Error saving user to MongoDB', error);
+                    res.status(500).json({ status: false, error: 'Error creating user' });
                 }
             }
-
         }
     },
 
@@ -51,33 +78,15 @@ module.exports = {
 
         try {
             await admin.auth().getUserByEmail(influencer.email);
-
-            res.status(400).json({ message: 'Email already registered' })
+            res.status(400).json({ message: 'Email already registered' });
         } catch (error) {
             if (error.code === 'auth/user-not-found') {
                 try {
-                    const userResponse = await admin.auth().createUser({
-                        email: influencer.email,
-                        password: influencer.password,
-                        emailVerified: false,
-                        disabled: false,
-                    });
-
-                    console.log(userResponse.uid);
-
-                    const newInfluencer = new User({
-                        fullname: influencer.fullname,
-                        email: influencer.email,
-                        password: CryptoJS.AES.encrypt(influencer.password, process.env.SECRET).toString(),
-                        uid: userResponse.uid,
-                        userType: 'Influencer'
-                    })
-
-                    await newInfluencer.save();
-                    res.status(201).json({ status: true })
+                    const newInfluencer = await createUserInDatabase(influencer, 'Influencer');
+                    res.status(201).json({ status: true });
                 } catch (error) {
-                    console.error("Error saving user to mongoDB", error);
-                    res.status(500).json({ status: false, error: "Error creating user" })
+                    console.error('Error saving influencer to MongoDB', error);
+                    res.status(500).json({ status: false, error: 'Error creating influencer' });
                 }
             }
         }
@@ -88,34 +97,15 @@ module.exports = {
 
         try {
             await admin.auth().getUserByEmail(flyAdmin.email);
-
-            res.status(400).json({ message: 'Email already registered' })
+            res.status(400).json({ message: 'Email already registered' });
         } catch (error) {
             if (error.code === 'auth/user-not-found') {
                 try {
-                    const userResponse = await admin.auth().createUser({
-                        email: flyAdmin.email,
-                        password: flyAdmin.password,
-                        emailVerified: false,
-                        disabled: false,
-                    });
-
-                    console.log(userResponse.uid);
-
-                    const newFlyAdmin = new User({
-                        fullname: flyAdmin.fullname,
-                        email: flyAdmin.email,
-                        password: CryptoJS.AES.encrypt(flyAdmin.password, process.env.SECRET).toString(),
-                        uid: userResponse.uid,
-                        userType: 'Admin'
-
-                    })
-
-                    await newFlyAdmin.save();
-                    res.status(201).json({ status: true })
+                    const newAdmin = await createUserInDatabase(flyAdmin, 'Admin');
+                    res.status(201).json({ status: true });
                 } catch (error) {
-                    console.error("Error saving user to mongoDB", error);
-                    res.status(500).json({ status: false, error: "Error creating user" })
+                    console.error('Error saving admin to MongoDB', error);
+                    res.status(500).json({ status: false, error: 'Error creating admin' });
                 }
             }
         }
@@ -126,148 +116,246 @@ module.exports = {
 
         try {
             await admin.auth().getUserByEmail(superAdmin.email);
-
-            res.status(400).json({ message: 'Email already registered' })
+            res.status(400).json({ message: 'Email already registered' });
         } catch (error) {
             if (error.code === 'auth/user-not-found') {
                 try {
-                    const userResponse = await admin.auth().createUser({
-                        email: superAdmin.email,
-                        password: superAdmin.password,
-                        emailVerified: false,
-                        disabled: false,
-                    });
-
-                    console.log(userResponse.uid);
-
-                    const newSuperAdmin = new User({
-                        fullname: superAdmin.fullname,
-                        email: superAdmin.email,
-                        password: CryptoJS.AES.encrypt(superAdmin.password, process.env.SECRET).toString(),
-                        uid: userResponse.uid,
-                        userType: 'SuperAdmin'
-                    })
-
-                    await newSuperAdmin.save();
-                    res.status(201).json({ status: true })
+                    const newSuperAdmin = await createUserInDatabase(superAdmin, 'SuperAdmin');
+                    res.status(201).json({ status: true });
                 } catch (error) {
-                    console.error("Error saving user to mongoDB", error);
-                    res.status(500).json({ status: false, error: "Error creating user" })
+                    console.error('Error saving super admin to MongoDB', error);
+                    res.status(500).json({ status: false, error: 'Error creating super admin' });
                 }
             }
         }
     },
 
-
-
     loginUser: async (req, res) => {
         try {
-            const user = await User.findOne({ email: req.body.email }, { __v: 0, updatedAt: 0, createdAt: 0 })
-            !user && res.status(200).json("Wrong credentials")
+            const user = await User.findOne({ email: req.body.email }, { __v: 0, updatedAt: 0, createdAt: 0 });
 
+            if (!user) {
+                return res.status(200).json("Wrong credentials");
+            }
 
-            const decryptedPassword = CryptoJS.AES.decrypt(user.password, process.env.SECRET);
-            const decrypted = decryptedPassword.toString(CryptoJS.enc.Utf8);
+            const decryptedPasswordBytes = CryptoJS.AES.decrypt(user.password, process.env.SECRET);
+            const decrypted = decryptedPasswordBytes.toString(CryptoJS.enc.Utf8);
 
-            decrypted !== req.body.password && res.status(401).json("Wrong email or password");
+            console.log('Stored Password:', user.password);
+            console.log('Decrypted Password:', decrypted);
+            console.log('Provided Password:', req.body.password);
+
+            if (!decrypted || decrypted !== req.body.password) {
+                return res.status(401).json("Wrong email or password");
+            }
+
 
             const userToken = jwt.sign({
                 id: user._id, userType: user.userType, email: user.email,
             }, process.env.JWT_SEC, { expiresIn: '21d' });
 
-            //filter db to send back to user
+            // Filter db to send back to user
             const { password, email, ...others } = user._doc;
 
-            res.status(200).json({ ...others, userToken })
+            res.status(200).json({ ...others, userToken });
         } catch (error) {
-            res.status(500).json({ status: false, error: error.message })
+            console.error('Error in loginUser:', error);
+            res.status(500).json({ status: false, error: error.message });
         }
+    },
 
+
+
+    verifyUserEmail: async (req, res) => {
+        try {
+            const { email, verificationCode } = req.body;
+
+            const user = await User.findOne({ email });
+
+            if (!user) {
+                console.log('User not found:', email);
+                return res.status(404).json({
+                    message: 'User not found',
+                });
+            }
+
+            if (user.isVerified) {
+                console.log('Email already verified:', email);
+                return res.status(400).json({
+                    message: 'Email already verified',
+                });
+            }
+
+            if (user.verificationCode !== verificationCode) {
+                console.log('Invalid verification code:', verificationCode);
+                return res.status(400).json({
+                    message: 'Invalid verification code',
+                });
+            }
+
+            // Code is valid - proceed with verification
+            user.isVerified = true;
+            await user.save();
+
+            console.log('Email verified successfully:', email);
+            res.status(200).json({
+                message: 'Email verified successfully',
+            });
+        } catch (error) {
+            console.error('Error verifying email:', error);
+            res.status(500).json({
+                message: 'Internal server error',
+            });
+        }
+    },
+
+    resendVerificationCode: async (req, res) => {
+        try {
+            const { userId } = req.body;
+
+            const user = await User.findById(userId);
+
+            if (!user) {
+                console.log('User not found:', userId);
+                return res.status(404).json({
+                    message: 'User not found',
+                });
+            }
+
+            if (user.isVerified) {
+                console.log('Email already verified:', user.email);
+                return res.status(400).json({
+                    message: 'Email already verified',
+                });
+            }
+            const newVerificationCode = user.generateVerificationCode();
+            user.verificationCode = newVerificationCode;
+            await user.save();
+
+            sendVerificationCode(user.email, newVerificationCode);
+
+            console.log('Verification code resent successfully:', user.email);
+            res.status(200).json({
+                message: 'Verification code resent successfully',
+            });
+        } catch (error) {
+            console.error('Error resending verification code:', error);
+            res.status(500).json({
+                message: 'Internal server error',
+            });
+        }
     },
 
     forgotPassword: async (req, res) => {
-
         try {
-            const user = await User.findOne({ email: req.body.email })
+            const { email } = req.body;
+
+            // Find the user by email
+            const user = await User.findOne({ email });
+
             if (!user) {
                 return res.status(400).json({ status: "Failed", message: "Email doesn't exist" });
             }
-            const resetToken = user.generatePasswordResetToken();
+
+            // Generate and save a new password reset verification code
+            const resetVerificationCode = user.generatePasswordResetVerificationCode();
+            user.passwordResetVerificationCode = resetVerificationCode;
+            user.passwordResetExpires = Date.now() + 300000; // 5 minutes in milliseconds
             await user.save({ validateBeforeSave: false });
 
-            const resetUrl = `${req.protocol}://${req.get("host")}/resetPassword/${resetToken}`
+            // Send the verification code to the user
+            sendVerificationCode(user.email, resetVerificationCode, 'password');
 
-            const body = "Forgot Password? Click on the given api: " + resetUrl;
-
-            const msg = {
-                to: user.email,
-                from: "bobcatzephyr@gmail.com",
-                subject: "Reset Password",
-                text: body
-            }
-
-            sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
-            sgMail.send(msg)
-                .then(() => {
-                    res.status(200).json({
-                        status: "Success",
-                        message: "Password reset link sent to your email",
-                    });
-                })
-                .catch((error) => {
-                    console.error("SendGrid error:", error);
-                    user.passwordResetToken = undefined;
-                    user.passwordResetExpires = undefined;
-                    user.save({ validateBeforeSave: false });
-                    res.status(400).json({
-                        status: "Failed",
-                        message: "Error sending email: " + error.message,
-                    });
-                });
-
+            res.status(200).json({
+                status: "Success",
+                message: "Password reset code sent to your email",
+            });
         } catch (error) {
-            res.status(500).json({ status: false, error: error.message })
+            res.status(500).json({ status: false, error: error.message });
         }
     },
 
-    resetPassword: async (req, res) => {
-        try {
-            
-            const hashedToken = crypto.createHash("sha256").update(req.params.token).digest('hex');
 
+    // Modify the function signature
+    verifyPasswordResetCode: async (req, res) => {
+        try {
+            const { verificationCode } = req.body;
+
+            // Find the user by verification code
             const user = await User.findOne({
-                passwordResetToken: hashedToken,
-                passwordResetExpires: {$gt: Date.now()}
+                passwordResetVerificationCode: verificationCode,
+                passwordResetExpires: { $gt: Date.now() }, // Check if the code has not expired
             });
+
             if (!user) {
+                console.log('Invalid verification code or code has expired:', verificationCode);
                 return res.status(400).json({
-                    status: "Failed",
-                    message: "Invalid token or Token has expired",
+                    message: 'Invalid verification code or code has expired',
                 });
             }
 
-            const newPassword = req.body.password;
+            return res.status(200).json({
+                message: 'Verification code is valid',
+               
+            });
+        } catch (error) {
+            console.error('Error verifying password reset code:', error);
+            res.status(500).json({
+                message: 'Internal server error',
+            });
+        }
+    },
 
 
-            const encryptedPassword = CryptoJS.AES.encrypt(newPassword, process.env.SECRET).toString();
-            user.password = encryptedPassword;
-            user.passwordResetToken = undefined;
-            user.passwordResetExpires = undefined;
-            user.passwordChangedDate = Date.now()
+    changePassword: async (req, res) => {
 
+        try {
+            const { email, newPassword } = req.body;
+
+            if (!newPassword) {
+                console.log('New password is missing in the request body');
+                return res.status(400).json({
+                    message: 'New password is missing in the request body',
+                });
+            }
+
+            // Find the user by email
+            const user = await User.findOne({ email });
+
+            if (!user) {
+                console.log('User not found:', email);
+                return res.status(404).json({
+                    message: 'User not found',
+                });
+            }
+
+            // Update the password
+            user.password = CryptoJS.AES.encrypt(newPassword, process.env.SECRET).toString();
+
+            user.passwordChangedDate = Date.now();
             await user.save();
 
+            // Generate a new JWT token for the user
             const userToken = jwt.sign({
                 id: user._id,
                 userType: user.userType,
                 email: user.email,
             }, process.env.JWT_SEC, { expiresIn: '21d' });
 
-            res.status(200).json({ id: user._id, results: { userToken } });
+            const { password, email: userEmail, ...others } = user._doc;
+
+            res.status(200).json({
+                ...others,
+                userToken,
+                message: 'Password change successful',
+            });
         } catch (error) {
-            res.status(500).json({ status: false, error: error.message });
+            console.error('Error changing password:', error);
+            res.status(500).json({
+                message: 'Internal server error',
+            });
         }
+
     }
 
 }

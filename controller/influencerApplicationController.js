@@ -47,7 +47,7 @@ module.exports = {
 
         try {
             const influencerApplications = await InfluencerApplication.find({ campaignId })
-                .populate('influencer._id', 'firstAndLastName noOfTikTokFollowers');
+                .populate('influencer._id', 'firstAndLastName noOfTikTokFollowers ratings');
 
             if (!influencerApplications || influencerApplications.length === 0) {
                 return res.status(404).json({ success: false, message: 'No influencer applications found for the campaign' });
@@ -56,6 +56,7 @@ module.exports = {
             const formattedApplications = influencerApplications.map(application => ({
                 influencerName: application.influencer.name,
                 followerCount: application.influencer.followerCount,
+                ratings: application.influencer.ratings,
                 createdAt: application.createdAt,
             }));
 
