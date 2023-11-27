@@ -3,8 +3,8 @@ const userController = require('../controller/userController');
 const {verifyAndAuthorization} = require('../middleware/verifyToken')
 
 
-router.get('/:id', verifyAndAuthorization, userController.getUser);
-router.delete('/',verifyAndAuthorization, userController.deleteUser);
-router.put('/',verifyAndAuthorization, userController.updateUser);
+router.get('/:id', userController.getUser);
+router.delete('/',userController.deleteUser);
+router.put('/',userController.updateUser);
 
 module.exports = router;
