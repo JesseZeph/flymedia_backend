@@ -46,8 +46,10 @@ async function createUserInDatabase(user, userType) {
         userType: userType || 'Client',
     });
 
+
     newUser.verificationCode = newUser.generateVerificationCode();
     await newUser.save();
+    
 
     sendVerificationCode(user.email, newUser.verificationCode, 'email');
     return newUser;
@@ -64,7 +66,7 @@ module.exports = {
             if (error.code === 'auth/user-not-found') {
                 try {
                     const newUser = await createUserInDatabase(user, user.userType);
-                    res.status(201).json({ status: true });
+                    res.status(201).json({ status: true, user: newUser });
                 } catch (error) {
                     console.error('Error saving user to MongoDB', error);
                     res.status(500).json({ status: false, error: 'Error creating user' });
