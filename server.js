@@ -45,7 +45,7 @@ const limiter = rateLimit({
 
 app.use('/api', limiter)
 
-app.use('/', authRouter);
+app.use('/api/', authRouter);
 app.use('/api/users', userRouter )
 app.use('/api/verifyCompany', verifyCompanyRouter )
 app.use('/api/uploadCampaign', uploadRouter)
