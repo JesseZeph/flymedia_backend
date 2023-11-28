@@ -85,7 +85,7 @@ module.exports = {
             if (error.code === 'auth/user-not-found') {
                 try {
                     const newInfluencer = await createUserInDatabase(influencer, 'Influencer');
-                    res.status(201).json({ status: true });
+                    res.status(201).json({ status: true, user: newInfluencer });
                 } catch (error) {
                     console.error('Error saving influencer to MongoDB', error);
                     res.status(500).json({ status: false, error: 'Error creating influencer' });
@@ -104,7 +104,7 @@ module.exports = {
             if (error.code === 'auth/user-not-found') {
                 try {
                     const newAdmin = await createUserInDatabase(flyAdmin, 'Admin');
-                    res.status(201).json({ status: true });
+                    res.status(201).json({ status: true, user: newAdmin });
                 } catch (error) {
                     console.error('Error saving admin to MongoDB', error);
                     res.status(500).json({ status: false, error: 'Error creating admin' });
@@ -123,7 +123,7 @@ module.exports = {
             if (error.code === 'auth/user-not-found') {
                 try {
                     const newSuperAdmin = await createUserInDatabase(superAdmin, 'SuperAdmin');
-                    res.status(201).json({ status: true });
+                    res.status(201).json({ status: true, user: newSuperAdmin });
                 } catch (error) {
                     console.error('Error saving super admin to MongoDB', error);
                     res.status(500).json({ status: false, error: 'Error creating super admin' });
