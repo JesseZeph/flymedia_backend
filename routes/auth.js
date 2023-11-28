@@ -11,7 +11,7 @@ router.post('/forgotPassword', authController.forgotPassword);
 router.post('/verifyPasswordReset', authController.verifyPasswordResetCode);
 
 router.patch('/resetPassword', authController.changePassword);
-router.post('/verifyEmail/:id', authController.verifyUserEmail);
+router.post('/verifyEmail', authController.verifyUserEmail);
 router.post('/resendVerification/:id', authController.resendVerificationCode);
 
 

@@ -143,17 +143,16 @@ module.exports = {
             const decryptedPasswordBytes = CryptoJS.AES.decrypt(user.password, process.env.SECRET);
             const decrypted = decryptedPasswordBytes.toString(CryptoJS.enc.Utf8);
 
-            console.log('Stored Password:', user.password);
-            console.log('Decrypted Password:', decrypted);
-            console.log('Provided Password:', req.body.password);
-
-            if (!decrypted || decrypted !== req.body.password) {
+            if (decrypted !== req.body.password) {
                 return res.status(401).json("Wrong email or password");
             }
 
 
             const userToken = jwt.sign({
-                id: user._id, userType: user.userType, email: user.email,
+                id: user._id, 
+                userType: user.userType, 
+                email: user.email,
+                uid: user.uid,
             }, process.env.JWT_SEC, { expiresIn: '21d' });
 
             // Filter db to send back to user
