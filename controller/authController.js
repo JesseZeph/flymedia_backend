@@ -134,7 +134,7 @@ module.exports = {
 
     loginUser: async (req, res) => {
         try {
-            const user = await User.findOne({ email: req.body.email }, { __v: 0, updatedAt: 0, createdAt: 0 });
+            const user = await User.findOne({ email: req.body.email }, { __v: 0, updatedAt: 0, createdAt: 0, email: 0 });
 
             if (!user) {
                 return res.status(200).json("Wrong credentials");
@@ -144,19 +144,18 @@ module.exports = {
             const decrypted = decryptedPasswordBytes.toString(CryptoJS.enc.Utf8);
 
             if (decrypted !== req.body.password) {
-                return res.status(401).json("Wrong email or password");
+                return res.status(400).json("Wrong email or password");
             }
 
 
             const userToken = jwt.sign({
                 id: user._id, 
                 userType: user.userType, 
-                email: user.email,
                 uid: user.uid,
             }, process.env.JWT_SEC, { expiresIn: '21d' });
 
             // Filter db to send back to user
-            const { password, email, ...others } = user._doc;
+            const { password, ...others } = user._doc;
 
             res.status(200).json({ ...others, userToken });
         } catch (error) {
