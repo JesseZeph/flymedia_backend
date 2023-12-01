@@ -25,6 +25,12 @@ module.exports = {
                 company: companyId, 
                 companyDescription: req.body.companyDescription,
                 imageUrl: cloudinaryResult.secure_url,
+                jobTitle: req.body.jobTitle,
+                country: req.body.country,
+                rateFrom: req.body.rateFrom,
+                rateTo: req.body.rateTo,
+                viewsRequired: req.body.viewsRequired,
+                jobDescription: req.body.jobDescription
             });
 
             const savedImage = await newImage.save();

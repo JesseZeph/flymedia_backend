@@ -12,7 +12,6 @@ const authRouter = require('./routes/auth')
 const userRouter = require('./routes/user')
 const verifyCompanyRouter = require('./routes/verifyCompany')
 const uploadRouter = require('./routes/campaingnUpload')
-const jobSpecRouter = require('./routes/jobspec')
 const influencerProfileRouter = require('./routes/influencerProfile');
 const nicheRouter = require('./routes/niche')
 const previewCampaignRouter = require('./routes/previewCampagn')
@@ -49,7 +48,6 @@ app.use('/api/', authRouter);
 app.use('/api/users', userRouter )
 app.use('/api/verifyCompany', verifyCompanyRouter )
 app.use('/api/uploadCampaign', uploadRouter)
-app.use('/api/jobSpec',jobSpecRouter )
 app.use('/api/influencerProfile',influencerProfileRouter )
 app.use('/api/niches', nicheRouter);
 app.use('/api/preview', previewCampaignRouter);

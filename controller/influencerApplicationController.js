@@ -1,6 +1,5 @@
 const InfluencerApplication = require('../models/influencerApplication');
 const CampaignUpload = require('../models/CampaignUpload')
-const JobSpecification = require('../models/JobSpecification');
 const InfluencerProfile = require('../models/InfluencerProfile');
 
 module.exports = {
@@ -11,7 +10,6 @@ module.exports = {
             const [influencer, campaign, jobspec] = await Promise.all([
                 InfluencerProfile.findById(influencerId),
                 CampaignUpload.findById(campaignId),
-                JobSpecification.findById(jobSpecId),
             ]);
 
             if (!influencer || !campaign || !jobspec) {

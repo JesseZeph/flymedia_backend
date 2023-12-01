@@ -1,5 +1,4 @@
 const CampaignUpload = require('../models/CampaignUpload');
-const JobSpecification = require('../models/JobSpecification');
 const VerifyCompany = require('../models/VerifyCompany');
 
 module.exports = {
@@ -10,7 +9,6 @@ module.exports = {
 
             const campaignDetails = await CampaignUpload.findOne({ company: companyId });
 
-            const jobSpecDetails = await JobSpecification.findById(jobSpecId).populate('company');
 
             const companyDetails = await VerifyCompany.findById(companyId);
 
@@ -26,15 +24,16 @@ module.exports = {
                 campaignDetails: {
                     companyDescription: campaignDetails ? campaignDetails.companyDescription : null,
                     imageUrl: campaignDetails ? campaignDetails.imageUrl : null,
+                    jobTitle: campaignDetails ? campaignDetails.jobTitle : null,
+                    jobTitle: campaignDetails ? campaignDetails.jobTitle : null,
+                    country: campaignDetails ? campaignDetails.country : null,
+                    rateFrom: campaignDetails ? campaignDetails.rateFrom : null,
+                    rateTo: campaignDetails ? campaignDetails.rateTo : null,
+                    viewsRequired: campaignDetails ? campaignDetails.viewsRequired : null,
+                    jobDescription: campaignDetails ? campaignDetails.jobDescription : null,
+
                 },
-                jobSpecDetails: {
-                    jobTitle: jobSpecDetails ? jobSpecDetails.jobTitle : null,
-                    country: jobSpecDetails ? jobSpecDetails.country : null,
-                    rateFrom: jobSpecDetails ? jobSpecDetails.rateFrom : null,
-                    rateTo: jobSpecDetails ? jobSpecDetails.rateTo : null,
-                    viewsRequired: jobSpecDetails ? jobSpecDetails.viewsRequired : null,
-                    jobDescription: jobSpecDetails ? jobSpecDetails.jobDescription : null,
-                },
+                
             };
 
             res.status(200).json({ success: true, previewData });
