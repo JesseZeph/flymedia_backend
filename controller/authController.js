@@ -166,13 +166,13 @@ module.exports = {
 
     influencerLogin: async (req, res) => {
         try {
-            const user = await User.findOne({ email: req.body.email }, { __v: 0, updatedAt: 0, createdAt: 0, email: 0 });
+            const influencers = await User.findOne({ email: req.body.email }, { __v: 0, updatedAt: 0, createdAt: 0, email: 0 });
 
-            if (!user) {
+            if (!influencers) {
                 return res.status(200).json("Wrong credentials");
             }
 
-            const decryptedPasswordBytes = CryptoJS.AES.decrypt(user.password, process.env.SECRET);
+            const decryptedPasswordBytes = CryptoJS.AES.decrypt(influencers.password, process.env.SECRET);
             const decrypted = decryptedPasswordBytes.toString(CryptoJS.enc.Utf8);
 
             if (decrypted !== req.body.password) {
@@ -181,13 +181,13 @@ module.exports = {
 
 
             const userToken = jwt.sign({
-                id: user._id, 
-                userType: user.userType, 
-                uid: user.uid,
+                id: influencers._id, 
+                userType: influencers.userType, 
+                uid: influencers.uid,
             }, process.env.JWT_SEC, { expiresIn: '21d' });
 
             // Filter db to send back to user
-            const { password, ...others } = user._doc;
+            const { password, ...others } = influencers._doc;
 
             res.status(200).json({ ...others, userToken });
         } catch (error) {
