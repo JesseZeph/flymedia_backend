@@ -46,14 +46,22 @@ async function createUserInDatabase(user, userType) {
         userType: userType || 'Client',
     });
 
-
     newUser.verificationCode = newUser.generateVerificationCode();
     await newUser.save();
-    
 
     sendVerificationCode(user.email, newUser.verificationCode, 'email');
+
+    const userToken = jwt.sign({
+        id: newUser._id,
+        userType: newUser.userType,
+        uid: newUser.uid,
+    }, process.env.JWT_SEC, { expiresIn: '21d' });
+
+    newUser.userToken = userToken;
+
     return newUser;
 }
+
 
 module.exports = {
     createUser: async (req, res) => {
