@@ -164,6 +164,38 @@ module.exports = {
         }
     },
 
+    influencerLogin: async (req, res) => {
+        try {
+            const user = await User.findOne({ email: req.body.email }, { __v: 0, updatedAt: 0, createdAt: 0, email: 0 });
+
+            if (!user) {
+                return res.status(200).json("Wrong credentials");
+            }
+
+            const decryptedPasswordBytes = CryptoJS.AES.decrypt(user.password, process.env.SECRET);
+            const decrypted = decryptedPasswordBytes.toString(CryptoJS.enc.Utf8);
+
+            if (decrypted !== req.body.password) {
+                return res.status(400).json("Wrong email or password");
+            }
+
+
+            const userToken = jwt.sign({
+                id: user._id, 
+                userType: user.userType, 
+                uid: user.uid,
+            }, process.env.JWT_SEC, { expiresIn: '21d' });
+
+            // Filter db to send back to user
+            const { password, ...others } = user._doc;
+
+            res.status(200).json({ ...others, userToken });
+        } catch (error) {
+            console.error('Error in loginUser:', error);
+            res.status(500).json({ status: false, error: error.message });
+        }
+    },
+
 
 
     verifyUserEmail: async (req, res) => {
