@@ -51,13 +51,13 @@ async function createUserInDatabase(user, userType) {
 
     sendVerificationCode(user.email, newUser.verificationCode, 'email');
 
-    const userToken = jwt.sign({
-        id: newUser._id,
-        userType: newUser.userType,
-        uid: newUser.uid,
-    }, process.env.JWT_SEC, { expiresIn: '21d' });
+    // const userToken = jwt.sign({
+    //     id: newUser._id,
+    //     userType: newUser.userType,
+    //     uid: newUser.uid,
+    // }, process.env.JWT_SEC, { expiresIn: '21d' });
 
-    newUser.userToken = userToken;
+    // newUser.userToken = userToken;
 
     return newUser;
 }
@@ -74,7 +74,17 @@ module.exports = {
             if (error.code === 'auth/user-not-found') {
                 try {
                     const newUser = await createUserInDatabase(user, user.userType);
-                    res.status(201).json({ status: true, user: newUser });
+
+                    // Generate a new JWT token for the user
+                    const userToken = jwt.sign({
+                        id: newUser._id,
+                        userType: newUser.userType,
+                        uid: newUser.uid,
+                    }, process.env.JWT_SEC, { expiresIn: '21d' });
+
+
+
+                    res.status(201).json({ status: true, user: { ...newUser.toObject(), userToken } });
                 } catch (error) {
                     console.error('Error saving user to MongoDB', error);
                     res.status(500).json({ status: false, error: 'Error creating user' });
@@ -93,7 +103,14 @@ module.exports = {
             if (error.code === 'auth/user-not-found') {
                 try {
                     const newInfluencer = await createUserInDatabase(influencer, 'Influencer');
-                    res.status(201).json({ status: true, user: newInfluencer });
+
+                    const userToken = jwt.sign({
+                        id: newInfluencer._id,
+                        userType: newInfluencer.userType,
+                        uid: newInfluencer.uid,
+                    }, process.env.JWT_SEC, { expiresIn: '21d' });
+
+                    res.status(201).json({ status: true, user: { ...newInfluencer.toObject(), userToken } });
                 } catch (error) {
                     console.error('Error saving influencer to MongoDB', error);
                     res.status(500).json({ status: false, error: 'Error creating influencer' });
