@@ -5,22 +5,8 @@ const User = require('../models/User');
 module.exports = {
 
     addCompany: async (req, res) => {
+        const newCompany = new Company(req.body)
         try {
-            const existingUser = await User.findById(req.user.id);
-
-            if (!existingUser) {
-                return res.status(403).json({ message: "Only registered users can apply for company verification." });
-            }
-
-            const newCompany = new Company({
-                companyName: req.body.companyName,
-                companyHQ: req.body.companyHQ,
-                website: req.body.website,
-                companyEmail: req.body.companyEmail,
-                memberContact: req.body.memberContact,
-                userId: req.user.id
-            });
-
             await newCompany.save();
             res.status(200).json({ message: "Company Details added successfully" });
         } catch (error) {
@@ -84,7 +70,7 @@ module.exports = {
             if(!company) {
                 return res.status(404).json({status: false, message: "company not found!"})
             }
-            await company.findByIdAndDelete(companyId);
+            await Company.findByIdAndDelete(companyId);
             res.status(200).json({status: true, message: "company successfully deleted"});
         } catch (error) {
             res.status(500).json({status: false, message: "Error deleting company"});            
