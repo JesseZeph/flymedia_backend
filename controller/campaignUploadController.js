@@ -1,28 +1,37 @@
 const cloudinary = require('../utils/cloudinary');
 const CampaignUpload = require('../models/CampaignUpload');
 const Company = require('../models/VerifyCompany')
+const User = require('../models/User')
 
 
 module.exports = {
     uploadCampaignImageAndDesc: async (req, res) => {
-        const companyId = req.params.id
-      
         try {
-            const company = await Company.findById(companyId)
-            if(!company) {
-                return res.status(404).json({ status: false, message: "Company not found!" });
+            // Assuming the user is authenticated and associated with a company
+            const userId = req.user.uid;
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ success: false, message: "User not found" });
             }
+
+            const company = await Company.findOne({ userId: userId });
+            if (!company) {
+                return res.status(404).json({ success: false, message: "Company not found for the user" });
+            }
+
+            // Check if the company is verified
             if (!company.isVerified) {
-                return res.status(403).json({ status: false, message: "Company not verified. Please wait for admin approval." });
+                return res.status(403).json({ success: false, message: "Company not verified. Please wait for admin approval." });
             }
+
             const cloudinaryResult = await cloudinary.uploader.upload(req.file.path);
 
             if (!req.file) {
                 return res.status(400).json({ success: false, message: 'No file provided' });
             }
-            
+
             const newImage = new CampaignUpload({
-                company: companyId, 
+                company: company._id, 
                 companyDescription: req.body.companyDescription,
                 imageUrl: cloudinaryResult.secure_url,
                 jobTitle: req.body.jobTitle,
@@ -35,14 +44,10 @@ module.exports = {
 
             const savedImage = await newImage.save();
 
-            const populatedImage = await CampaignUpload.findById(savedImage._id).populate('company');
-
-
             res.status(200).json({
                 success: true,
                 message: 'File Uploaded!',
-                imageUrl: cloudinaryResult.secure_url,
-                mongoDBURL: populatedImage.imageUrl, 
+                campaignUpload: savedImage,  // Include all fields in the response
             });
         } catch (error) {
             console.error(error);
