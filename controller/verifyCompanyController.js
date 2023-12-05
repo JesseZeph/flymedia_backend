@@ -13,7 +13,7 @@ module.exports = {
                 return res.status(404).json({ success: false, message: "User not found" });
             }
 
-            const newCompany = new VerifyCompany({
+            const newCompany = new Company({
                 companyName: req.body.companyName,
                 companyHq: req.body.companyHq,
                 website: req.body.website,
