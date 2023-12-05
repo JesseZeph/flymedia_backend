@@ -8,13 +8,10 @@ module.exports = {
     uploadCampaignImageAndDesc: async (req, res) => {
         try {
             // Assuming the user is authenticated and associated with a company
-            const userId = req.user.uid;
-            const user = await User.findById(userId);
-            if (!user) {
-                return res.status(404).json({ success: false, message: "User not found" });
-            }
-
+            const userId = req.user.id; // Assuming you have the user ID in req.user.id
             const company = await Company.findOne({ userId: userId });
+            console.log("User ID:", userId);
+
             if (!company) {
                 return res.status(404).json({ success: false, message: "Company not found for the user" });
             }
@@ -31,7 +28,7 @@ module.exports = {
             }
 
             const newImage = new CampaignUpload({
-                company: company._id, 
+                company: company._id,  // Use the ObjectId of the associated company
                 companyDescription: req.body.companyDescription,
                 imageUrl: cloudinaryResult.secure_url,
                 jobTitle: req.body.jobTitle,

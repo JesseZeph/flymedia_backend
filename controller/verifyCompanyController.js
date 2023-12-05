@@ -5,13 +5,29 @@ const User = require('../models/User');
 module.exports = {
 
     addCompany: async (req, res) => {
-        const newCompany = new Company(req.body)
         try {
+            const userId = req.user.id; 
+
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ success: false, message: "User not found" });
+            }
+
+            const newCompany = new VerifyCompany({
+                companyName: req.body.companyName,
+                companyHq: req.body.companyHq,
+                website: req.body.website,
+                companyEmail: req.body.companyEmail,
+                memberContact: req.body.memberContact,
+                userId: user._id, 
+            });
+
             await newCompany.save();
-            res.status(200).json({ message: "Company Details added successfully" });
+
+            res.status(200).json({ success: true, message: "Company Details added successfully" });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: `Adding Company Details failed. Error: ${error.message}` });
+            res.status(500).json({ success: false, message: `Adding Company Details failed. Error: ${error.message}` });
         }
     },
     verificationStatus: async (req, res) => {
