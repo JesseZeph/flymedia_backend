@@ -82,7 +82,7 @@ module.exports = {
             },
             searchCampaign: async (req, res)=> {
                 try {
-                    const results = await Job.aggregate([
+                    const results = await CampaignUpload.aggregate([
                         [
                             {
                               $search: {
