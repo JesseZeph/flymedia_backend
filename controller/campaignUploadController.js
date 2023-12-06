@@ -79,5 +79,27 @@ module.exports = {
                 } catch (error) {
                     res.status(500).json({ status: false, message: error.message });
                 }
-            }
+            },
+            searchCampaign: async (req, res)=> {
+                try {
+                    const results = await Job.aggregate([
+                        [
+                            {
+                              $search: {
+                                index: "campaignsearch",
+                                text: {
+                                  query: req.params.key,
+                                  path: {
+                                    wildcard: "*"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                      ])
+                      res.status(200).json(results)
+                } catch (error) {
+                   res.status(500).json(error); 
+                }
+            },
 };
