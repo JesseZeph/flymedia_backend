@@ -7,7 +7,7 @@ const User = require('../models/User')
 module.exports = {
     uploadCampaignImageAndDesc: async (req, res) => {
         try {
-            const userId = req.user.id; 
+            const userId = req.user.id;
             const company = await Company.findOne({ userId: userId });
 
             if (!company) {
@@ -49,7 +49,10 @@ module.exports = {
             res.status(200).json({
                 success: true,
                 message: 'File Uploaded!',
-                campaignUpload: savedImage, 
+                campaignUpload: {
+                    ...savedImage.toObject(),
+                    imageUrl: cloudinaryResult.secure_url,  
+                },
             });
         } catch (error) {
             console.error(error);
