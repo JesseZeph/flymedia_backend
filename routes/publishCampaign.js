@@ -3,6 +3,6 @@ const publishCampaignController = require('../controller/publishCampaignControll
 const {verifyAndAuthorization} = require('../middleware/verifyToken')
 
 
-router.post('/:companyId/:jobSpecId', verifyAndAuthorization, publishCampaignController.publishCampaignAndJobSpecs );
+router.post('/:id', verifyAndAuthorization, publishCampaignController.publishCampaign );
 
 module.exports = router;

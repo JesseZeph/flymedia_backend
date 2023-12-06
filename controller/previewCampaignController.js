@@ -5,7 +5,6 @@ module.exports = {
     previewCampaignAndJobSpecs: async (req, res) => {
         try {
             const companyId = req.params.companyId;
-            const jobSpecId = req.params.jobSpecId;
 
             const campaignDetails = await CampaignUpload.findOne({ company: companyId });
 

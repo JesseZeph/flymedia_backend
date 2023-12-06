@@ -24,7 +24,6 @@ module.exports = {
                 return res.status(400).json({ success: false, message: 'No file provided' });
             }
 
-            // Check if required fields are provided
             const requiredFields = ['companyDescription', 'jobTitle', 'country', 'rateFrom', 'rateTo', 'viewsRequired', 'jobDescription'];
             const missingFields = requiredFields.filter(field => !req.body[field]);
 

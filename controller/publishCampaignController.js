@@ -2,14 +2,13 @@ const CampaignUpload = require('../models/CampaignUpload');
 const VerifyCompany = require('../models/VerifyCompany');
 
 module.exports = {
-    publishCampaignAndJobSpecs: async (req, res) => {
+    publishCampaign: async (req, res) => {
         try {
             const companyId = req.params.companyId;
 
             const campaignDetails = await CampaignUpload.findOne({ company: companyId });
 
-            
-
+        
             const companyDetails = await VerifyCompany.findById(companyId);
 
             if (companyDetails) {

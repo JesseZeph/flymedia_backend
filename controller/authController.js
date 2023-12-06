@@ -322,7 +322,6 @@ module.exports = {
     },
 
 
-    // Modify the function signature
     verifyPasswordResetCode: async (req, res) => {
         try {
             const { verificationCode } = req.body;
