@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const bodyParser = require("body-parser")
 const helmet = require('helmet')
-const rateLimit = require('express-rate-limit')
+// const rateLimit = require('express-rate-limit')
 const sanitize = require('express-mongo-sanitize')
 const app = express()
 const port = 6002
@@ -36,13 +36,13 @@ app.use(bodyParser.urlencoded({limit: '50mb', extended: true }))
 app.use(helmet());
 app.use(sanitize());
 
-const limiter = rateLimit({
-  windowMs: 40 * 60 * 1000,
-  max: 10,
-  message: 'Too many requests',
-})
+// const limiter = rateLimit({
+//   windowMs: 40 * 60 * 1000,
+//   max: 1000,
+//   message: 'Too many requests',
+// })
 
-app.use('/api', limiter)
+// app.use('/api', limiter)
 
 app.use('/api/', authRouter);
 app.use('/api/users', userRouter )

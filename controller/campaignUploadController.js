@@ -24,6 +24,14 @@ module.exports = {
                 return res.status(400).json({ success: false, message: 'No file provided' });
             }
 
+            // Check if required fields are provided
+            const requiredFields = ['companyDescription', 'jobTitle', 'country', 'rateFrom', 'rateTo', 'viewsRequired', 'jobDescription'];
+            const missingFields = requiredFields.filter(field => !req.body[field]);
+
+            if (missingFields.length > 0) {
+                return res.status(400).json({ success: false, message: `Missing required fields: ${missingFields.join(', ')}` });
+            }
+
             const newImage = new CampaignUpload({
                 company: company._id,
                 companyDescription: req.body.companyDescription,
