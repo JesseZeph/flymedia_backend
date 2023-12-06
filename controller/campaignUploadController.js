@@ -62,16 +62,30 @@ module.exports = {
 
     getCampaignImageAndDesc: async (req, res) => {
         const logoWithDescId = req.params.id;
-
+    
         try {
-            const logoWithDesc = await CampaignUpload.findById(logoWithDescId)
-                if(logoWithDesc) {
-                    return res.status(200).json({logoWithDesc})
-                }else {
-                    return res.status(404).json({status: false, message: "Logo with details not found"})
-                }
+            const logoWithDesc = await CampaignUpload.findById(logoWithDescId);
+            if (logoWithDesc) {
+                // Extract relevant fields from the document
+                const { imageUrl, companyDescription, jobTitle, country, rateFrom, rateTo, viewsRequired, jobDescription } = logoWithDesc;
+    
+                // Create a simplified JSON response
+                const simplifiedResponse = {
+                    imageUrl,
+                    companyDescription,
+                    jobTitle,
+                    country,
+                    rateFrom,
+                    rateTo,
+                    viewsRequired,
+                    jobDescription,
+                };
+    
+                return res.status(200).json(simplifiedResponse);
+            } else {
+                return res.status(404).json({ status: false, message: "Logo with details not found" });
+            }
         } catch (error) {
-           
             res.status(500).json({ status: false, message: error.message });
         }
     },
