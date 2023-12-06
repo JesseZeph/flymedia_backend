@@ -53,7 +53,7 @@ module.exports = {
         const logoWithDescId = req.params.id;
 
         try {
-            const logoWithDesc = await CampaignUpload.findById(logoWithDescId).populate('company');
+            const logoWithDesc = await CampaignUpload.findById(logoWithDescId)
                 if(logoWithDesc) {
                     return res.status(200).json({logoWithDesc})
                 }else {
@@ -66,7 +66,7 @@ module.exports = {
     },
     getAllCampaignImageAndDesc: async (req, res) => {
                 try {
-                    const logoWithDesc = await CampaignUpload.find({}, { __v: 0 }).populate('company');
+                    const logoWithDesc = await CampaignUpload.find({}, { __v: 0 })
                     res.status(200).json(logoWithDesc);
                 } catch (error) {
                     res.status(500).json({ status: false, message: error.message });
