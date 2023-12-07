@@ -6,6 +6,11 @@ const companyDetailsSchema = new mongoose.Schema({
         ref: 'VerifyCompany',
         required: true,
     },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+      },
     imageUrl: {
         type: String,
         required: true,

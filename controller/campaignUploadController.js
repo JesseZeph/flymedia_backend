@@ -6,8 +6,9 @@ const User = require('../models/User');
 module.exports = {
   uploadCampaignImageAndDesc: async (req, res) => {
     try {
-      const userId = req.body.user_id;
-      const company = await Company.findOne({ userId: userId });
+      const userId = req.user.id;
+      const company = await Company.findOne({userId});
+      console.log(userId)
       if (!company) {
         return res
           .status(404)
@@ -45,6 +46,7 @@ module.exports = {
         });
       }
       const newImage = new CampaignUpload({
+        user: userId,
         company: company._id,
         companyDescription: req.body.companyDescription,
         imageUrl: cloudinaryResult.secure_url,
@@ -93,6 +95,29 @@ module.exports = {
       res.status(200).json(logoWithDesc);
     } catch (error) {
       res.status(500).json({ status: false, message: error.message });
+    }
+  },
+
+  getUserCampaigns: async (req, res) => {
+    try {
+      const userId = req.params.id;
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found',
+        });
+      }
+
+      const userCampaigns = await CampaignUpload.find({user});
+
+      res.status(200).json(userCampaigns);
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching user campaigns',
+      });
     }
   },
   searchCampaign: async (req, res) => {
