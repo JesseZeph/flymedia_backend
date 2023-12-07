@@ -68,8 +68,7 @@ module.exports = {
       console.error({ error });
       return res.status(500).json({
         success: false,
-        // message: 'Error uploading or saving the file',
-        message: error.message,
+        message: 'Error uploading or saving the file',
       });
     }
   },
