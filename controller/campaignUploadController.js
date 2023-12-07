@@ -6,28 +6,24 @@ const User = require('../models/User');
 module.exports = {
   uploadCampaignImageAndDesc: async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.body.user_id;
       const company = await Company.findOne({ userId: userId });
-
       if (!company) {
         return res
           .status(404)
           .json({ success: false, message: 'Company not found for the user' });
       }
-
       if (!company.isVerified) {
         return res.status(403).json({
           success: false,
           message: 'Company not verified. Please wait for admin approval.',
         });
       }
-
       if (!req.file) {
         return res
           .status(400)
           .json({ success: false, message: 'No file provided' });
       }
-
       const cloudinaryResult = await cloudinary.uploader.upload(req.file.path);
 
       const requiredFields = [
@@ -40,6 +36,7 @@ module.exports = {
         'jobDescription',
       ];
       const missingFields = requiredFields.filter((field) => !req.body[field]);
+      console.log({ missingFields });
 
       if (missingFields.length > 0) {
         return res.status(400).json({
@@ -47,7 +44,6 @@ module.exports = {
           message: `Missing required fields: ${missingFields.join(', ')}`,
         });
       }
-
       const newImage = new CampaignUpload({
         company: company._id,
         companyDescription: req.body.companyDescription,
@@ -59,9 +55,7 @@ module.exports = {
         viewsRequired: req.body.viewsRequired,
         jobDescription: req.body.jobDescription,
       });
-
       const savedImage = await newImage.save();
-
       res.status(200).json({
         success: true,
         message: 'File Uploaded!',
@@ -74,7 +68,8 @@ module.exports = {
       console.error({ error });
       return res.status(500).json({
         success: false,
-        message: 'Error uploading or saving the file',
+        // message: 'Error uploading or saving the file',
+        message: error.message,
       });
     }
   },

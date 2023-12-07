@@ -5,14 +5,14 @@ const InfluencerProfile = require('../models/InfluencerProfile');
 module.exports = {
     applyForCampaign: async (req, res) => {
         try {
-            const { influencerId, campaignId, jobSpecId } = req.body;
+            const { influencerId, campaignId} = req.body;
 
-            const [influencer, campaign, jobspec] = await Promise.all([
+            const [influencer, campaign] = await Promise.all([
                 InfluencerProfile.findById(influencerId),
                 CampaignUpload.findById(campaignId),
             ]);
 
-            if (!influencer || !campaign || !jobspec) {
+            if (!influencer || !campaign) {
                 return res.status(404).json({ success: false, message: 'Influencer, campaign, or job specification not found' });
             }
 
@@ -27,7 +27,6 @@ module.exports = {
                     followerCount: influencer.noOfTikTokFollowers,
                 },
                 campaignId,
-                jobSpecId,
             });
 
             await newApplication.save();
@@ -54,7 +53,6 @@ module.exports = {
             const formattedApplications = influencerApplications.map(application => ({
                 influencerName: application.influencer.name,
                 followerCount: application.influencer.followerCount,
-                ratings: application.influencer.ratings,
                 createdAt: application.createdAt,
             }));
 
