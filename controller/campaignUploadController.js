@@ -7,7 +7,7 @@ const User = require('../models/User')
 module.exports = {
     uploadCampaignImageAndDesc: async (req, res) => {
         try {
-            const userId = req.user.id;
+            const userId = req.body.user_id;
             const company = await Company.findOne({ userId: userId });
 
             if (!company) {
