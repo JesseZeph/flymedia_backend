@@ -1,6 +1,8 @@
 const cloudinary = require('../utils/cloudinary');
 const InfluencerProfile = require('../models/InfluencerProfile');
 const Niche = require('../models/Niche')
+const User = require('../models/User');
+
 
 module.exports = {
     uploadProfilePhoto: async (req, res) => {
@@ -10,11 +12,17 @@ module.exports = {
 
         try {
 
-            const userId = req.body.user_id;
+            const userId = req.user.id;
 
-            if (!userId) {
-                return res.status(403).json({ message: "Unauthorized. Only registered users can update profile." });
-            }
+        if (!userId) {
+            return res.status(400).json({ success: false, message: 'User ID is required' });
+        }
+
+        const influencer = await User.find({ userId });
+
+        if (!influencer) {
+            return res.status(403).json({ message: "Unauthorized. Only registered users can update profile." });
+        }
 
             const cloudinaryResult = await cloudinary.uploader.upload(req.file.path);
 
@@ -49,8 +57,8 @@ module.exports = {
             res.status(200).json({
                 success: true,
                 message: 'Profile Updated!',
-                imageURL: cloudinaryResult.secure_url,
-                mongoDBURL: savedInfluencerProfile.imageURL, 
+                newInfluencerProfile,
+                savedInfluencerProfile
             });
         } catch (error) {
             console.log(error);
@@ -62,7 +70,7 @@ module.exports = {
         const influencerId = req.params.id;
 
         try {
-            const userId = req.body.user_id; 
+            const userId = req.user.id; 
             if (!userId) {
                 return res.status(403).json({ success: false, message: "Unauthorized. Only registered users can update their profile." });
             }
@@ -98,24 +106,7 @@ module.exports = {
 
                 existingProfile.niches = await Promise.all(nichePromises);
             }
-
-            if (req.body.rating && req.body.rating.stars) {
-                const ratingUserId = userId;
-
-                // Check if the user is not the influencer themselves
-                if (existingProfile.userId.toString() !== ratingUserId.toString()) {
-                    const rating = {
-                        userId: ratingUserId,
-                        stars: req.body.rating.stars,
-                    };
-
-                    existingProfile.ratings.push(rating);
-                } else {
-                    return res.status(400).json({ success: false, message: "Influencers cannot rate themselves." });
-                }
-            }
-
-            
+    
             const updatedInfluencerProfile = await existingProfile.save();
 
             res.status(200).json({
@@ -129,26 +120,38 @@ module.exports = {
             return res.status(500).json({ success: false, message: 'Error updating the influencer profile' });
         }
     },
+
     getInfluencerProfile: async (req, res) => {
         try {
-            if (!req.user || !req.user.id) {
-                return res.status(403).json({ success: false, message: "Unauthorized. Only registered users can access profiles." });
+            const userId = req.params.id;
+
+            if (!userId) {
+                return res.status(400).json({ success: false, message: 'User ID is required' });
             }
-    
-            const userId = req.body.user_id;
-            const influencerProfileId = req.params.id;
-    
-            const influencerProfile = await InfluencerProfile.findOne({ _id: influencerProfileId, userId }, { __v: 0 });
-    
-            if (influencerProfile) {
-                return res.status(200).json({ success: true, influencerProfile });
-            } else {
-                return res.status(404).json({ success: false, message: "Influencer profile not found or unauthorized access" });
+
+            const userProfile = await InfluencerProfile.findOne({ userId });
+
+            if (!userProfile) {
+                return res.status(404).json({ success: false, message: 'User profile not found' });
             }
+
+            const influencerProfile = {
+                _id: userProfile._id,
+                imageURL: userProfile.imageURL,
+                firstAndLastName: userProfile.firstAndLastName,
+                location: userProfile.location,
+                noOfTikTokFollowers: userProfile.noOfTikTokFollowers,
+                noOfTikTokLikes: userProfile.noOfTikTokLikes,
+                postsViews: userProfile.postsViews,
+                niches: userProfile.niches,
+                bio: userProfile.bio,
+                userId: userProfile.userId,
+            };
+
+            res.status(200).json(influencerProfile);
         } catch (error) {
-            console.error("Error while retrieving influencer profile:", error);
-            return res.status(500).json({ success: false, message: "Error retrieving influencer profile", error: error.message });
+            console.log(error);
+            return res.status(500).json({ success: false, message: 'Error retrieving user profile' });
         }
     },
-    
 };
