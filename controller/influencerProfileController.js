@@ -10,7 +10,7 @@ module.exports = {
 
         try {
 
-            const userId = req.user.id;
+            const userId = req.body.user_id;
 
             if (!userId) {
                 return res.status(403).json({ message: "Unauthorized. Only registered users can update profile." });
@@ -62,7 +62,7 @@ module.exports = {
         const influencerId = req.params.id;
 
         try {
-            const userId = req.user.id; 
+            const userId = req.body.user_id; 
             if (!userId) {
                 return res.status(403).json({ success: false, message: "Unauthorized. Only registered users can update their profile." });
             }
@@ -135,7 +135,7 @@ module.exports = {
                 return res.status(403).json({ success: false, message: "Unauthorized. Only registered users can access profiles." });
             }
     
-            const userId = req.user.id;
+            const userId = req.body.user_id;
             const influencerProfileId = req.params.id;
     
             const influencerProfile = await InfluencerProfile.findOne({ _id: influencerProfileId, userId }, { __v: 0 });
@@ -150,29 +150,5 @@ module.exports = {
             return res.status(500).json({ success: false, message: "Error retrieving influencer profile", error: error.message });
         }
     },
-
-    displayInfluencerProfile: async (req, res) => {
-        try {
-            // Ensure the user is registered and has an ID
-            // if (!req.user || !req.user.id) {
-            //     return res.status(403).json({ success: false, message: "Unauthorized. Only registered users can access profiles." });
-            // }
-
-            const influencerProfileId = req.params.id;
-
-            const influencerProfile = await InfluencerProfile.findOne({ _id: influencerProfileId }, { __v: 0 });
-
-            if (!influencerProfile) {
-                return res.status(404).json({ success: false, message: "Influencer profile not found" });
-            }
-
-            return res.status(200).json({ success: true, influencerProfile });
-        } catch (error) {
-            console.error("Error while retrieving influencer profile:", error);
-            return res.status(500).json({ success: false, message: "Error retrieving influencer profile", error: error.message });
-        }
-    },
-    
-    
     
 };
