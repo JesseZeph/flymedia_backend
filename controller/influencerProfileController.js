@@ -53,10 +53,12 @@ module.exports = {
                 imageURL: cloudinaryResult.secure_url,
                 firstAndLastName: req.body.firstAndLastName,
                 location: req.body.location,
+                tikTokLink: req.body.tikTokLink,
+                email: req.body.email,
                 noOfTikTokFollowers: req.body.noOfTikTokFollowers,
                 noOfTikTokLikes: req.body.noOfTikTokLikes,
                 postsViews: req.body.postsViews,
-                niches: nicheObjects, // Assign the array of niche objects
+                niches: nicheObjects, 
                 bio: req.body.bio,
             });
 
@@ -117,6 +119,12 @@ module.exports = {
             }
             if (req.body.location) {
                 existingProfile.location = req.body.location;
+            }
+            if (req.body.tikTokLink) {
+                existingProfile.tikTokLink = req.body.tikTokLink;
+            }
+            if (req.body.email) {
+                existingProfile.email = req.body.email;
             }
             if (req.body.noOfTikTokFollowers) {
                 existingProfile.noOfTikTokFollowers = req.body.noOfTikTokFollowers;
@@ -194,6 +202,8 @@ module.exports = {
                 imageURL: userProfile.imageURL,
                 firstAndLastName: userProfile.firstAndLastName,
                 location: userProfile.location,
+                tikTokLink: userProfile.tikTokLink,
+                email: userProfile.email,
                 noOfTikTokFollowers: userProfile.noOfTikTokFollowers,
                 noOfTikTokLikes: userProfile.noOfTikTokLikes,
                 postsViews: userProfile.postsViews,
