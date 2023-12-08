@@ -50,10 +50,12 @@ module.exports = {
         imageURL: cloudinaryResult.secure_url,
         firstAndLastName: req.body.firstAndLastName,
         location: req.body.location,
+        tikTokLink: req.body.tikTokLink,
+        email: req.body.email,
         noOfTikTokFollowers: req.body.noOfTikTokFollowers,
         noOfTikTokLikes: req.body.noOfTikTokLikes,
         postsViews: req.body.postsViews,
-        niches: nicheObjects, // Assign the array of niche objects
+        niches: nicheObjects,
         bio: req.body.bio,
       });
 
@@ -102,32 +104,49 @@ module.exports = {
         });
       }
 
-      existingProfile.imageURL = req.file
-        ? (await cloudinary.uploader.upload(req.file.path)).secure_url
-        : existingProfile.imageURL;
-      existingProfile.firstAndLastName =
-        req.body.firstAndLastName || existingProfile.firstAndLastName;
-      existingProfile.location = req.body.location || existingProfile.location;
-      existingProfile.noOfTikTokFollowers =
-        req.body.noOfTikTokFollowers || existingProfile.noOfTikTokFollowers;
-      existingProfile.noOfTikTokLikes =
-        req.body.noOfTikTokLikes || existingProfile.noOfTikTokLikes;
-      existingProfile.postsViews =
-        req.body.postsViews || existingProfile.postsViews;
-      existingProfile.bio = req.body.bio || existingProfile.bio;
-
+      if (req.file) {
+        existingProfile.imageURL = (
+          await cloudinary.uploader.upload(req.file.path)
+        ).secure_url;
+      }
+      if (req.body.firstAndLastName) {
+        existingProfile.firstAndLastName = req.body.firstAndLastName;
+      }
+      if (req.body.location) {
+        existingProfile.location = req.body.location;
+      }
+      if (req.body.tikTokLink) {
+        existingProfile.tikTokLink = req.body.tikTokLink;
+      }
+      if (req.body.email) {
+        existingProfile.email = req.body.email;
+      }
+      if (req.body.noOfTikTokFollowers) {
+        existingProfile.noOfTikTokFollowers = req.body.noOfTikTokFollowers;
+      }
+      if (req.body.noOfTikTokLikes) {
+        existingProfile.noOfTikTokLikes = req.body.noOfTikTokLikes;
+      }
+      if (req.body.postsViews) {
+        existingProfile.postsViews = req.body.postsViews;
+      }
+      if (req.body.bio) {
+        existingProfile.bio = req.body.bio;
+      }
       if (req.body.niches && Array.isArray(req.body.niches)) {
-        const nichePromises = req.body.niches.map(async (name) => {
+        const nicheObjects = [];
+
+        for (const name of req.body.niches) {
           const existingNiche = await Niche.findOne({ name });
           if (existingNiche) {
-            return existingNiche._id;
+            nicheObjects.push(existingNiche);
           } else {
             const newNiche = await Niche.create({ name });
-            return newNiche._id;
+            nicheObjects.push(newNiche);
           }
-        });
+        }
 
-        existingProfile.niches = await Promise.all(nichePromises);
+        existingProfile.niches = nicheObjects;
       }
 
       const updatedInfluencerProfile = await existingProfile.save();
@@ -142,7 +161,8 @@ module.exports = {
       console.log(error);
       return res.status(500).json({
         success: false,
-        message: 'Error updating the influencer profile',
+        // message: 'Error updating the influencer profile',
+        message: error.message,
       });
     }
   },
@@ -167,7 +187,55 @@ module.exports = {
           .json({ success: false, message: 'User profile not found' });
       }
 
-      // Extract only _id and name from each niche object in the niches array
+      const simplifiedNiches = userProfile.niches.map((niche) => ({
+        _id: niche._id,
+        name: niche.name,
+      }));
+
+      const influencerProfile = {
+        _id: userProfile._id,
+        imageURL: userProfile.imageURL,
+        firstAndLastName: userProfile.firstAndLastName,
+        location: userProfile.location,
+        tikTokLink: userProfile.tikTokLink,
+        email: userProfile.email,
+        noOfTikTokFollowers: userProfile.noOfTikTokFollowers,
+        noOfTikTokLikes: userProfile.noOfTikTokLikes,
+        postsViews: userProfile.postsViews,
+        niches: simplifiedNiches,
+        bio: userProfile.bio,
+        userId: userProfile.userId,
+      };
+
+      res.status(200).json(influencerProfile);
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ success: false, message: 'Error retrieving user profile' });
+    }
+  },
+
+  getInfluencerProfileClientSide: async (req, res) => {
+    try {
+      const userId = req.params.id;
+
+      if (!userId) {
+        return res
+          .status(400)
+          .json({ success: false, message: 'User ID is required' });
+      }
+
+      const userProfile = await InfluencerProfile.findOne({ userId }).populate(
+        'niches'
+      );
+
+      if (!userProfile) {
+        return res
+          .status(404)
+          .json({ success: false, message: 'User profile not found' });
+      }
+
       const simplifiedNiches = userProfile.niches.map((niche) => ({
         _id: niche._id,
         name: niche.name,
@@ -181,7 +249,7 @@ module.exports = {
         noOfTikTokFollowers: userProfile.noOfTikTokFollowers,
         noOfTikTokLikes: userProfile.noOfTikTokLikes,
         postsViews: userProfile.postsViews,
-        niches: simplifiedNiches, // Use the simplifiedNiches array
+        niches: simplifiedNiches,
         bio: userProfile.bio,
         userId: userProfile.userId,
       };

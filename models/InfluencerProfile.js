@@ -13,6 +13,14 @@ const InfluencerProfileSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  email: {
+    type: String,
+    required: true,
+  },
+  tikTokLink: {
+    type: String,
+    required: true,
+  },
   noOfTikTokFollowers: {
     type: String,
     required: true,
