@@ -23,12 +23,10 @@ module.exports = {
       const influencer = await User.find({ userId });
 
       if (!influencer) {
-        return res
-          .status(403)
-          .json({
-            success: false,
-            message: 'Unauthorized. Only registered users can update profile.',
-          });
+        return res.status(403).json({
+          success: false,
+          message: 'Unauthorized. Only registered users can update profile.',
+        });
       }
 
       const cloudinaryResult = await cloudinary.uploader.upload(req.file.path);
@@ -69,12 +67,11 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
-      return res
-        .status(500)
-        .json({
-          success: false,
-          message: 'Error uploading or saving the file',
-        });
+      return res.status(500).json({
+        success: false,
+        // message: 'Error uploading or saving the file',
+        message: error.message,
+      });
     }
   },
 
@@ -84,13 +81,11 @@ module.exports = {
     try {
       const userId = req.user.id;
       if (!userId) {
-        return res
-          .status(403)
-          .json({
-            success: false,
-            message:
-              'Unauthorized. Only registered users can update their profile.',
-          });
+        return res.status(403).json({
+          success: false,
+          message:
+            'Unauthorized. Only registered users can update their profile.',
+        });
       }
 
       let existingProfile = await InfluencerProfile.findById(influencerId);
@@ -102,13 +97,11 @@ module.exports = {
       }
 
       if (existingProfile.userId.toString() !== userId.toString()) {
-        return res
-          .status(403)
-          .json({
-            success: false,
-            message:
-              "Unauthorized. You don't have permission to update this profile.",
-          });
+        return res.status(403).json({
+          success: false,
+          message:
+            "Unauthorized. You don't have permission to update this profile.",
+        });
       }
 
       existingProfile.imageURL = req.file
@@ -149,12 +142,10 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
-      return res
-        .status(500)
-        .json({
-          success: false,
-          message: 'Error updating the influencer profile',
-        });
+      return res.status(500).json({
+        success: false,
+        message: 'Error updating the influencer profile',
+      });
     }
   },
 
