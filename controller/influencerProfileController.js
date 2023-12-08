@@ -165,50 +165,95 @@ module.exports = {
         }
     },
 
-  getInfluencerProfile: async (req, res) => {
-    try {
-        const userId = req.params.id;
+    getInfluencerProfile: async (req, res) => {
+        try {
+            const userId = req.params.id;
 
-        if (!userId) {
+            if (!userId) {
+                return res
+                    .status(400)
+                    .json({ success: false, message: 'User ID is required' });
+            }
+
+            const userProfile = await InfluencerProfile.findOne({ userId })
+                .populate('niches');
+
+            if (!userProfile) {
+                return res
+                    .status(404)
+                    .json({ success: false, message: 'User profile not found' });
+            }
+
+            const simplifiedNiches = userProfile.niches.map(niche => ({
+                _id: niche._id,
+                name: niche.name,
+            }));
+
+            const influencerProfile = {
+                _id: userProfile._id,
+                imageURL: userProfile.imageURL,
+                firstAndLastName: userProfile.firstAndLastName,
+                location: userProfile.location,
+                noOfTikTokFollowers: userProfile.noOfTikTokFollowers,
+                noOfTikTokLikes: userProfile.noOfTikTokLikes,
+                postsViews: userProfile.postsViews,
+                niches: simplifiedNiches,
+                bio: userProfile.bio,
+                userId: userProfile.userId,
+            };
+
+            res.status(200).json(influencerProfile);
+        } catch (error) {
+            console.log(error);
             return res
-                .status(400)
-                .json({ success: false, message: 'User ID is required' });
+                .status(500)
+                .json({ success: false, message: 'Error retrieving user profile' });
         }
+    },
 
-        const userProfile = await InfluencerProfile.findOne({ userId })
-            .populate('niches');
+    getInfluencerProfileClientSide: async (req, res) => {
+        try {
+            const userId = req.params.id;
 
-        if (!userProfile) {
+            if (!userId) {
+                return res
+                    .status(400)
+                    .json({ success: false, message: 'User ID is required' });
+            }
+
+            const userProfile = await InfluencerProfile.findOne({ userId })
+                .populate('niches');
+
+            if (!userProfile) {
+                return res
+                    .status(404)
+                    .json({ success: false, message: 'User profile not found' });
+            }
+
+            const simplifiedNiches = userProfile.niches.map(niche => ({
+                _id: niche._id,
+                name: niche.name,
+            }));
+
+            const influencerProfile = {
+                _id: userProfile._id,
+                imageURL: userProfile.imageURL,
+                firstAndLastName: userProfile.firstAndLastName,
+                location: userProfile.location,
+                noOfTikTokFollowers: userProfile.noOfTikTokFollowers,
+                noOfTikTokLikes: userProfile.noOfTikTokLikes,
+                postsViews: userProfile.postsViews,
+                niches: simplifiedNiches, 
+                bio: userProfile.bio,
+                userId: userProfile.userId,
+            };
+
+            res.status(200).json(influencerProfile);
+        } catch (error) {
+            console.log(error);
             return res
-                .status(404)
-                .json({ success: false, message: 'User profile not found' });
+                .status(500)
+                .json({ success: false, message: 'Error retrieving user profile' });
         }
-
-        // Extract only _id and name from each niche object in the niches array
-        const simplifiedNiches = userProfile.niches.map(niche => ({
-            _id: niche._id,
-            name: niche.name,
-        }));
-
-        const influencerProfile = {
-            _id: userProfile._id,
-            imageURL: userProfile.imageURL,
-            firstAndLastName: userProfile.firstAndLastName,
-            location: userProfile.location,
-            noOfTikTokFollowers: userProfile.noOfTikTokFollowers,
-            noOfTikTokLikes: userProfile.noOfTikTokLikes,
-            postsViews: userProfile.postsViews,
-            niches: simplifiedNiches, // Use the simplifiedNiches array
-            bio: userProfile.bio,
-            userId: userProfile.userId,
-        };
-
-        res.status(200).json(influencerProfile);
-    } catch (error) {
-        console.log(error);
-        return res
-            .status(500)
-            .json({ success: false, message: 'Error retrieving user profile' });
-    }
-},
+    },
 };
