@@ -78,85 +78,92 @@ module.exports = {
         }
     },
 
-  updateInfluencerProfile: async (req, res) => {
-    const influencerId = req.params.id;
+    updateInfluencerProfile: async (req, res) => {
+        const influencerId = req.params.id;
 
-    try {
-      const userId = req.user.id;
-      if (!userId) {
-        return res
-          .status(403)
-          .json({
-            success: false,
-            message:
-              'Unauthorized. Only registered users can update their profile.',
-          });
-      }
+        try {
+            const userId = req.user.id;
+            if (!userId) {
+                return res
+                    .status(403)
+                    .json({
+                        success: false,
+                        message: 'Unauthorized. Only registered users can update their profile.',
+                    });
+            }
 
-      let existingProfile = await InfluencerProfile.findById(influencerId);
+            let existingProfile = await InfluencerProfile.findById(influencerId);
 
-      if (!existingProfile) {
-        return res
-          .status(404)
-          .json({ success: false, message: 'Influencer profile not found' });
-      }
+            if (!existingProfile) {
+                return res
+                    .status(404)
+                    .json({ success: false, message: 'Influencer profile not found' });
+            }
 
-      if (existingProfile.userId.toString() !== userId.toString()) {
-        return res
-          .status(403)
-          .json({
-            success: false,
-            message:
-              "Unauthorized. You don't have permission to update this profile.",
-          });
-      }
+            if (existingProfile.userId.toString() !== userId.toString()) {
+                return res
+                    .status(403)
+                    .json({
+                        success: false,
+                        message: "Unauthorized. You don't have permission to update this profile.",
+                    });
+            }
 
-      existingProfile.imageURL = req.file
-        ? (await cloudinary.uploader.upload(req.file.path)).secure_url
-        : existingProfile.imageURL;
-      existingProfile.firstAndLastName =
-        req.body.firstAndLastName || existingProfile.firstAndLastName;
-      existingProfile.location = req.body.location || existingProfile.location;
-      existingProfile.noOfTikTokFollowers =
-        req.body.noOfTikTokFollowers || existingProfile.noOfTikTokFollowers;
-      existingProfile.noOfTikTokLikes =
-        req.body.noOfTikTokLikes || existingProfile.noOfTikTokLikes;
-      existingProfile.postsViews =
-        req.body.postsViews || existingProfile.postsViews;
-      existingProfile.bio = req.body.bio || existingProfile.bio;
+            if (req.file) {
+                existingProfile.imageURL = (await cloudinary.uploader.upload(req.file.path)).secure_url;
+            }
+            if (req.body.firstAndLastName) {
+                existingProfile.firstAndLastName = req.body.firstAndLastName;
+            }
+            if (req.body.location) {
+                existingProfile.location = req.body.location;
+            }
+            if (req.body.noOfTikTokFollowers) {
+                existingProfile.noOfTikTokFollowers = req.body.noOfTikTokFollowers;
+            }
+            if (req.body.noOfTikTokLikes) {
+                existingProfile.noOfTikTokLikes = req.body.noOfTikTokLikes;
+            }
+            if (req.body.postsViews) {
+                existingProfile.postsViews = req.body.postsViews;
+            }
+            if (req.body.bio) {
+                existingProfile.bio = req.body.bio;
+            }
+            if (req.body.niches && Array.isArray(req.body.niches)) {
+                const nicheObjects = [];
 
-      if (req.body.niches && Array.isArray(req.body.niches)) {
-        const nichePromises = req.body.niches.map(async (name) => {
-          const existingNiche = await Niche.findOne({ name });
-          if (existingNiche) {
-            return existingNiche._id;
-          } else {
-            const newNiche = await Niche.create({ name });
-            return newNiche._id;
-          }
-        });
+                for (const name of req.body.niches) {
+                    const existingNiche = await Niche.findOne({ name });
+                    if (existingNiche) {
+                        nicheObjects.push(existingNiche);
+                    } else {
+                        const newNiche = await Niche.create({ name });
+                        nicheObjects.push(newNiche);
+                    }
+                }
 
-        existingProfile.niches = await Promise.all(nichePromises);
-      }
+                existingProfile.niches = nicheObjects;
+            }
 
-      const updatedInfluencerProfile = await existingProfile.save();
+            const updatedInfluencerProfile = await existingProfile.save();
 
-      res.status(200).json({
-        success: true,
-        message: 'Profile Updated!',
-        cloudinaryURL: updatedInfluencerProfile.cloudinaryURL,
-        mongoDBURL: updatedInfluencerProfile.cloudinaryURL,
-      });
-    } catch (error) {
-      console.log(error);
-      return res
-        .status(500)
-        .json({
-          success: false,
-          message: 'Error updating the influencer profile',
-        });
-    }
-  },
+            res.status(200).json({
+                success: true,
+                message: 'Profile Updated!',
+                cloudinaryURL: updatedInfluencerProfile.cloudinaryURL,
+                mongoDBURL: updatedInfluencerProfile.cloudinaryURL,
+            });
+        } catch (error) {
+            console.log(error);
+            return res
+                .status(500)
+                .json({
+                    success: false,
+                    message: 'Error updating the influencer profile',
+                });
+        }
+    },
 
   getInfluencerProfile: async (req, res) => {
     try {
