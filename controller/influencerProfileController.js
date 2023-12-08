@@ -4,83 +4,79 @@ const Niche = require('../models/Niche');
 const User = require('../models/User');
 
 module.exports = {
-  uploadProfilePhoto: async (req, res) => {
-    if (!req.file) {
-        return res
-            .status(400)
-            .json({ success: false, message: 'No file provided' });
-    }
-
-    try {
-        const userId = req.user.id;
-
-        if (!userId) {
+    uploadProfilePhoto: async (req, res) => {
+        if (!req.file) {
             return res
                 .status(400)
-                .json({ success: false, message: 'User ID is required' });
+                .json({ success: false, message: 'No file provided' });
         }
 
-        const influencer = await User.find({ userId });
+        try {
+            const userId = req.user.id;
 
-        if (!influencer) {
+            if (!userId) {
+                return res
+                    .status(400)
+                    .json({ success: false, message: 'User ID is required' });
+            }
+
+            const influencer = await User.find({ userId });
+
+            if (!influencer) {
+                return res
+                    .status(403)
+                    .json({
+                        success: false,
+                        message: 'Unauthorized. Only registered users can update profile.',
+                    });
+            }
+
+            const cloudinaryResult = await cloudinary.uploader.upload(req.file.path);
+
+            const selectedNicheNames = req.body.niches;
+
+            const nicheObjects = [];
+
+            for (const name of selectedNicheNames) {
+                const existingNiche = await Niche.findOne({ name });
+                if (existingNiche) {
+                    nicheObjects.push(existingNiche);
+                } else {
+                    const newNiche = await Niche.create({ name });
+                    nicheObjects.push(newNiche);
+                }
+            }
+
+
+            const newInfluencerProfile = new InfluencerProfile({
+                userId: userId,
+                imageURL: cloudinaryResult.secure_url,
+                firstAndLastName: req.body.firstAndLastName,
+                location: req.body.location,
+                noOfTikTokFollowers: req.body.noOfTikTokFollowers,
+                noOfTikTokLikes: req.body.noOfTikTokLikes,
+                postsViews: req.body.postsViews,
+                niches: nicheObjects, // Assign the array of niche objects
+                bio: req.body.bio,
+            });
+
+            const savedInfluencerProfile = await newInfluencerProfile.save();
+
+            res.status(200).json({
+                success: true,
+                message: 'Profile Updated!',
+                savedInfluencerProfile,
+            });
+        } catch (error) {
+            console.log(error);
             return res
-                .status(403)
+                .status(500)
                 .json({
                     success: false,
-                    message: 'Unauthorized. Only registered users can update profile.',
+                    message: 'Error uploading or saving the file',
                 });
         }
-
-        const cloudinaryResult = await cloudinary.uploader.upload(req.file.path);
-
-        const selectedNicheNames = req.body.niches;
-
-        // Create an array to store niche objects
-        const nicheObjects = [];
-
-        // Iterate through selected niche names
-        for (const name of selectedNicheNames) {
-            const existingNiche = await Niche.findOne({ name });
-            if (existingNiche) {
-                nicheObjects.push(existingNiche);
-            } else {
-                const newNiche = await Niche.create({ name });
-                nicheObjects.push(newNiche);
-            }
-        }
-
-        // Now, nicheObjects contains the actual niche objects
-
-        const newInfluencerProfile = new InfluencerProfile({
-            userId: userId,
-            imageURL: cloudinaryResult.secure_url,
-            firstAndLastName: req.body.firstAndLastName,
-            location: req.body.location,
-            noOfTikTokFollowers: req.body.noOfTikTokFollowers,
-            noOfTikTokLikes: req.body.noOfTikTokLikes,
-            postsViews: req.body.postsViews,
-            niches: nicheObjects, // Assign the array of niche objects
-            bio: req.body.bio,
-        });
-
-        const savedInfluencerProfile = await newInfluencerProfile.save();
-
-        res.status(200).json({
-            success: true,
-            message: 'Profile Updated!',
-            newInfluencerProfile,
-            savedInfluencerProfile,
-        });
-    } catch (error) {
-        console.log(error);
-        return res
-            .status(500)
-            .json({
-                success: false,
-                message: 'Error uploading or saving the file',
-            });
-    }
-},
+    },
 
   updateInfluencerProfile: async (req, res) => {
     const influencerId = req.params.id;
