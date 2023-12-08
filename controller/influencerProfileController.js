@@ -33,17 +33,17 @@ module.exports = {
 
       const selectedNicheNames = req.body.niches;
 
-      const nichePromises = selectedNicheNames.map(async (name) => {
+      const nicheObjects = [];
+
+      for (const name of selectedNicheNames) {
         const existingNiche = await Niche.findOne({ name });
         if (existingNiche) {
-          return existingNiche._id;
+          nicheObjects.push(existingNiche);
         } else {
           const newNiche = await Niche.create({ name });
-          return newNiche._id;
+          nicheObjects.push(newNiche);
         }
-      });
-
-      const nicheIds = await Promise.all(nichePromises);
+      }
 
       const newInfluencerProfile = new InfluencerProfile({
         userId: userId,
@@ -53,7 +53,7 @@ module.exports = {
         noOfTikTokFollowers: req.body.noOfTikTokFollowers,
         noOfTikTokLikes: req.body.noOfTikTokLikes,
         postsViews: req.body.postsViews,
-        niches: nicheIds,
+        niches: nicheObjects, // Assign the array of niche objects
         bio: req.body.bio,
       });
 
@@ -62,7 +62,6 @@ module.exports = {
       res.status(200).json({
         success: true,
         message: 'Profile Updated!',
-        newInfluencerProfile,
         savedInfluencerProfile,
       });
     } catch (error) {
@@ -158,13 +157,21 @@ module.exports = {
           .json({ success: false, message: 'User ID is required' });
       }
 
-      const userProfile = await InfluencerProfile.findOne({ userId });
+      const userProfile = await InfluencerProfile.findOne({ userId }).populate(
+        'niches'
+      );
 
       if (!userProfile) {
         return res
           .status(404)
           .json({ success: false, message: 'User profile not found' });
       }
+
+      // Extract only _id and name from each niche object in the niches array
+      const simplifiedNiches = userProfile.niches.map((niche) => ({
+        _id: niche._id,
+        name: niche.name,
+      }));
 
       const influencerProfile = {
         _id: userProfile._id,
@@ -174,7 +181,7 @@ module.exports = {
         noOfTikTokFollowers: userProfile.noOfTikTokFollowers,
         noOfTikTokLikes: userProfile.noOfTikTokLikes,
         postsViews: userProfile.postsViews,
-        niches: userProfile.niches,
+        niches: simplifiedNiches, // Use the simplifiedNiches array
         bio: userProfile.bio,
         userId: userProfile.userId,
       };
