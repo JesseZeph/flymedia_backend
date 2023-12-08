@@ -7,7 +7,7 @@ router.post('/', verifyAndAuthorization, upload.single('image'),UploadImageContr
 router.get('/:id', UploadImageController.getCampaignImageAndDesc )
 router.get('/', UploadImageController.getAllCampaignImageAndDesc )
 router.get('/search/:key', UploadImageController.searchCampaign);
-router.get('/client/:id', verifyAndAuthorization, UploadImageController.getUserCampaigns)
+router.get('/client/:id', UploadImageController.getUserCampaigns)
 
 
 module.exports = router;
