@@ -112,7 +112,7 @@ module.exports = {
 
       const userCampaigns = await CampaignUpload.find({user});
 
-      res.status(200).json(userCampaigns);
+      res.status(200).json({success: true, campaign: userCampaigns});
     } catch (error) {
       res.status(500).json({
         success: false,

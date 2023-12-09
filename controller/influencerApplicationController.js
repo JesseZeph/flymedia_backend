@@ -16,7 +16,7 @@ module.exports = {
                 return res.status(404).json({ success: false, message: 'Influencer, campaign, or job specification not found' });
             }
 
-            if(!influencer.imageURL || !influencer.firstAndLastName || !influencer.location || !influencer.noOfTikTokFollowers || !influencer.noOfTikTokLikes || !influencer.niches || !influencer.bio) {
+            if(!influencer.imageURL || !influencer.firstAndLastName || !influencer.location || !influencer.noOfTikTokFollowers || !influencer.noOfTikTokLikes || !influencer.niches || !influencer.bio || !influencer.email || !influencer.tikTokLink) {
                 return res.status(400).json({success: false, message: 'Complete your influencer profile before applying for campaigns'});
             }
 

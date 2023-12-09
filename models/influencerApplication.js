@@ -15,11 +15,6 @@ const InfluencerApplicationSchema = new mongoose.Schema({
         ref: 'CampaignUpload',
         required: true,
     },
-    jobSpecId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'JobSpecification',
-        required: true,
-    },
     createdAt: {
         type: Date,
         default: Date.now,
