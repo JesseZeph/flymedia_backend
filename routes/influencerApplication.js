@@ -4,7 +4,7 @@ const influencerApplicationController = require('../controller/influencerApplica
 const {verifyInfluencer, verifyClient } = require('../middleware/verifyToken')
 
 router.post('/', verifyInfluencer, influencerApplicationController.applyForCampaign);
-router.get('/applications', influencerApplicationController.getInfluencerApplications);
+router.get('/applications/:id', influencerApplicationController.getInfluencerApplications);
 
 
 module.exports = router;
