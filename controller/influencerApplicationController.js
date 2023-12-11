@@ -33,11 +33,8 @@ module.exports = {
             await newApplication.save();
 
             res.status(200).json({
-                success: true,
-                influencerApplication: {
                     influencerName: influencerProfile.firstAndLastName,
                     followerCount: influencerProfile.noOfTikTokFollowers,
-                },
             });
         } catch (error) {
             console.error('Error:', error);
@@ -57,7 +54,7 @@ module.exports = {
                 });
             }
 
-            // Retrieve influencer applications for the specified campaign and populate the influencerId field
+            
             const applications = await InfluencerApplication.find({ campaignId })
                 .populate({
                     path: 'influencerId',
@@ -66,7 +63,6 @@ module.exports = {
                 });
 
             res.status(200).json({
-                success: true,
                 applications: applications.map(application => ({
                     influencerName: application.influencerId.firstAndLastName,
                     followerCount: application.influencerId.noOfTikTokFollowers,
@@ -77,4 +73,6 @@ module.exports = {
             res.status(500).json({ success: false, message: 'Error retrieving applications for the campaign' });
         }
     },
+
+    
 };
