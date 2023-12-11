@@ -31,7 +31,7 @@ module.exports = {
 
             await newApplication.save();
 
-            res.status(201).json({ success: true, message: 'Application submitted successfully' });
+            res.status(201).json({...newApplication.influencer});
         } catch (error) {
             console.error('Error:', error);
             res.status(500).json({ success: false, message: 'Error submitting application' });
