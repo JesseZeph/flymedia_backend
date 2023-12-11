@@ -15,7 +15,6 @@ const verifyCompanyRouter = require('./routes/verifyCompany');
 const uploadRouter = require('./routes/campaingnUpload');
 const influencerProfileRouter = require('./routes/influencerProfile');
 const nicheRouter = require('./routes/niche');
-const previewCampaignRouter = require('./routes/previewCampagn');
 const publishCampaignRouter = require('./routes/publishCampaign');
 const influencerApplicationRouter = require('./routes/influencerApplication');
 
@@ -52,9 +51,8 @@ app.use('/api/verifyCompany', verifyCompanyRouter);
 app.use('/api/uploadCampaign', uploadRouter);
 app.use('/api/influencerProfile', influencerProfileRouter);
 app.use('/api/niches', nicheRouter);
-app.use('/api/preview', previewCampaignRouter);
 app.use('/api/publish', publishCampaignRouter);
-app.use('/api/influencer', influencerApplicationRouter);
+app.use('/api/applyCampaign', influencerApplicationRouter);
 
 app.listen(process.env.PORT || port, () =>
   console.log(`Flymedia is listening to port ${process.env.PORT}!`)

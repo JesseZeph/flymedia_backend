@@ -89,6 +89,19 @@ module.exports = {
       res.status(500).json({ status: false, message: error.message });
     }
   },
+
+  deleteCampaign: async (req, res) => {
+    const logoWithDescId = req.params.id;
+
+    try {
+       await CampaignUpload.findByIdAndDelete(logoWithDescId)
+      res.status(200).json({status: true, message: 'Campaign successfully deleted'})
+    } catch (error) {
+      res.status(500).json({ status: false, message: error.message });
+    
+    }
+
+  },
   getAllCampaignImageAndDesc: async (req, res) => {
     try {
       const logoWithDesc = await CampaignUpload.find({}, { __v: 0 });
