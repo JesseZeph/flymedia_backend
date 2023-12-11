@@ -255,43 +255,6 @@ module.exports = {
         }
     },
 
-    resendVerificationCode: async (req, res) => {
-        try {
-            const { userId } = req.body;
-
-            const user = await User.findById(userId);
-
-            if (!user) {
-                console.log('User not found:', userId);
-                return res.status(404).json({
-                    message: 'User not found',
-                });
-            }
-
-            if (user.isVerified) {
-                console.log('Email already verified:', user.email);
-                return res.status(400).json({
-                    message: 'Email already verified',
-                });
-            }
-            const newVerificationCode = user.generateVerificationCode();
-            user.verificationCode = newVerificationCode;
-            await user.save();
-
-            sendVerificationCode(user.email, newVerificationCode);
-
-            console.log('Verification code resent successfully:', user.email);
-            res.status(200).json({
-                message: 'Verification code resent successfully',
-            });
-        } catch (error) {
-            console.error('Error resending verification code:', error);
-            res.status(500).json({
-                message: 'Internal server error',
-            });
-        }
-    },
-
     forgotPassword: async (req, res) => {
         try {
             const { email } = req.body;
@@ -318,6 +281,37 @@ module.exports = {
             });
         } catch (error) {
             res.status(500).json({ status: false, error: error.message });
+        }
+    },
+
+    resendVerificationCode: async (req, res) => {
+        try {
+            const { email } = req.body;
+
+            const user = await User.findOne({ email });
+
+            if (!user) {
+                console.log('User not found');
+                return res.status(404).json({
+                    message: 'User not found',
+                });
+            }
+
+            const newVerificationCode = user.generateVerificationCode();
+            user.verificationCode = newVerificationCode;
+            await user.save();
+
+            sendVerificationCode(user.email, newVerificationCode);
+
+            console.log('Verification code resent successfully:', user.email);
+            res.status(200).json({
+                message: 'Verification code resent successfully',
+            });
+        } catch (error) {
+            console.error('Error resending verification code:', error);
+            res.status(500).json({
+                message: 'Internal server error',
+            });
         }
     },
 
