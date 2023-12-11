@@ -1,5 +1,5 @@
 const InfluencerApplication = require('../models/influencerApplication');
-const CampaignUpload = require('../models/CampaignUpload')
+const CampaignUpload = require('../models/CampaignUpload');
 const InfluencerProfile = require('../models/InfluencerProfile');
 
 module.exports = {
@@ -15,40 +15,66 @@ module.exports = {
                 });
             }
 
+            const influencerProfile = await InfluencerProfile.findOne({ id: influencer._id });
+
+            if (!influencerProfile) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Influencer profile not found',
+                    details: 'Please make sure the influencer profile is created for the given user.',
+                });
+            }
+
             const newApplication = new InfluencerApplication({
+                influencerId: influencerProfile._id,
                 campaignId,
             });
 
             await newApplication.save();
-            res.status(200).json(newApplication);
+
+            res.status(200).json({
+                success: true,
+                influencerApplication: {
+                    influencerName: influencerProfile.firstAndLastName,
+                    followerCount: influencerProfile.noOfTikTokFollowers,
+                },
+            });
         } catch (error) {
             console.error('Error:', error);
             res.status(500).json({ success: false, message: 'Error submitting application' });
         }
     },
 
-
+    
     getInfluencerApplications: async (req, res) => {
-        const { campaignId } = req.params;
-
         try {
-            const influencerApplications = await InfluencerApplication.find({ campaignId })
-                .populate('influencer._id', 'firstAndLastName noOfTikTokFollowers ratings');
+            const { campaignId } = req.params;
 
-            if (!influencerApplications || influencerApplications.length === 0) {
-                return res.status(404).json({ success: false, message: 'No influencer applications found for the campaign' });
+            if (!campaignId) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Campaign ID is required.',
+                });
             }
 
-            const formattedApplications = influencerApplications.map(application => ({
-                influencerName: application.influencer.name,
-                followerCount: application.influencer.followerCount,
-                createdAt: application.createdAt,
-            }));
+            // Retrieve influencer applications for the specified campaign and populate the influencerId field
+            const applications = await InfluencerApplication.find({ campaignId })
+                .populate({
+                    path: 'influencerId',
+                    model: 'InfluencerProfile',
+                    select: 'firstAndLastName noOfTikTokFollowers',
+                });
 
-            res.status(200).json({ success: true, influencerApplications: formattedApplications });
+            res.status(200).json({
+                success: true,
+                applications: applications.map(application => ({
+                    influencerName: application.influencerId.firstAndLastName,
+                    followerCount: application.influencerId.noOfTikTokFollowers,
+                })),
+            });
         } catch (error) {
             console.error('Error:', error);
-            res.status(500).json({ success: false, message: 'Error fetching influencer applications for the campaign' });
+            res.status(500).json({ success: false, message: 'Error retrieving applications for the campaign' });
         }
     },
-}
+};
