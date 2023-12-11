@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
 const InfluencerApplicationSchema = new mongoose.Schema({
-    influencer: {
+    influencerId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'InfluencerProfile',
     },
-    campaign: {
+    campaignId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'CampaignUpload',
     },
