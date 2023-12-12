@@ -5,27 +5,22 @@ const InfluencerProfile = require('../models/InfluencerProfile');
 module.exports = {
   applyForCampaign: async (req, res) => {
     try {
-      const { userId, campaign_id } = req.body;
+      const userId = req.body.influencerId;
+      const campaign_id = req.body.campaignId;
 
       const hasApplied = await InfluencerApplication.find({
         influencerId: userId,
         campaignId: campaign_id,
       }).exec();
-
-      if (hasApplied) {
+      if (hasApplied.length > 0) {
         return res.status(200).json({
           success: false,
           message: 'You already applied for this campaign',
         });
       }
-
-      //   const [influencer, campaign] = await Promise.all([
-      //     InfluencerProfile.findById(userId),
-      //     CampaignUpload.findById(campaign_id),
-      //   ]);
-
-      const influencerVerified = await InfluencerProfile.findById(userId);
-
+      const influencerVerified = await InfluencerProfile.findById(
+        userId
+      ).exec();
       if (!influencerVerified) {
         return res.status(404).json({
           success: false,
@@ -34,15 +29,15 @@ module.exports = {
       }
 
       if (
-        !influencer.imageURL ||
-        !influencer.firstAndLastName ||
-        !influencer.location ||
-        !influencer.noOfTikTokFollowers ||
-        !influencer.noOfTikTokLikes ||
-        !influencer.niches ||
-        !influencer.bio ||
-        !influencer.email ||
-        !influencer.tikTokLink
+        !influencerVerified.imageURL ||
+        !influencerVerified.firstAndLastName ||
+        !influencerVerified.location ||
+        !influencerVerified.noOfTikTokFollowers ||
+        !influencerVerified.noOfTikTokLikes ||
+        !influencerVerified.niches ||
+        !influencerVerified.bio ||
+        !influencerVerified.email ||
+        !influencerVerified.tikTokLink
       ) {
         return res.status(400).json({
           success: false,
@@ -71,14 +66,13 @@ module.exports = {
 
   getInfluencerApplications: async (req, res) => {
     const userId = req.query.id;
-
     try {
       const influencerApplicationsList = await InfluencerApplication.find({
         influencerId: userId,
       })
         .populate('campaignId')
         .exec();
-
+      console.log({ influencerApplicationsList });
       if (
         !influencerApplicationsList ||
         influencerApplicationsList.length === 0
@@ -88,14 +82,6 @@ module.exports = {
           message: 'No influencer applications found for the campaign',
         });
       }
-
-      // const formattedApplications = influencerApplications.map(
-      //   (application) => ({
-      //     influencerName: application.influencer.name,
-      //     followerCount: application.influencer.followerCount,
-      //     createdAt: application.createdAt,
-      //   })
-      // );
 
       const formattedApplications = influencerApplicationsList.map(
         (application) => application.campaignId
@@ -116,6 +102,7 @@ module.exports = {
 
   getCampaignApplicants: async (req, res) => {
     const campaign_id = req.query.id;
+
     try {
       const campaignApplicantsList = await InfluencerApplication.find({
         campaignId: campaign_id,
@@ -132,6 +119,7 @@ module.exports = {
       const formattedApplicants = campaignApplicantsList.map(
         (applicant) => applicant.influencerId
       );
+
       res.status(200).json({
         success: true,
         influencerApplications: formattedApplicants,
