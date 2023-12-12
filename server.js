@@ -52,7 +52,7 @@ app.use('/api/uploadCampaign', uploadRouter);
 app.use('/api/influencerProfile', influencerProfileRouter);
 app.use('/api/niches', nicheRouter);
 app.use('/api/publish', publishCampaignRouter);
-app.use('/api/applyCampaign', influencerApplicationRouter);
+app.use('/api/applications', influencerApplicationRouter);
 
 app.listen(process.env.PORT || port, () =>
   console.log(`Flymedia is listening to port ${process.env.PORT}!`)
