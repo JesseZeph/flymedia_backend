@@ -7,15 +7,29 @@ module.exports = {
     try {
       const { userId, campaign_id } = req.body;
 
-      const [influencer, campaign] = await Promise.all([
-        InfluencerProfile.findById(userId),
-        CampaignUpload.findById(campaign_id),
-      ]);
+      const hasApplied = await InfluencerApplication.find({
+        influencerId: userId,
+        campaignId: campaign_id,
+      }).exec();
 
-      if (!influencer || !campaign) {
+      if (hasApplied) {
+        return res.status(200).json({
+          success: false,
+          message: 'You already applied for this campaign',
+        });
+      }
+
+      //   const [influencer, campaign] = await Promise.all([
+      //     InfluencerProfile.findById(userId),
+      //     CampaignUpload.findById(campaign_id),
+      //   ]);
+
+      const influencerVerified = await InfluencerProfile.findById(userId);
+
+      if (!influencerVerified) {
         return res.status(404).json({
           success: false,
-          message: 'Influencer, campaign, or job specification not found',
+          message: 'This user profile not found.',
         });
       }
 
