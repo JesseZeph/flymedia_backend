@@ -6,9 +6,9 @@ const User = require('../models/User');
 module.exports = {
   uploadCampaignImageAndDesc: async (req, res) => {
     try {
-      const userId = req.user.id;
-      const company = await Company.findOne({userId});
-      console.log(userId)
+      const { user_id, ...others } = req.body;
+      console.log(user_id);
+      const company = await Company.findOne({ userId: user_id }).exec();
       if (!company) {
         return res
           .status(404)
@@ -36,7 +36,7 @@ module.exports = {
         'viewsRequired',
         'jobDescription',
       ];
-      const missingFields = requiredFields.filter((field) => !req.body[field]);
+      const missingFields = requiredFields.filter((field) => !others[field]);
       console.log({ missingFields });
 
       if (missingFields.length > 0) {
@@ -46,7 +46,7 @@ module.exports = {
         });
       }
       const newImage = new CampaignUpload({
-        user: userId,
+        user: user_id,
         company: company._id,
         companyDescription: req.body.companyDescription,
         imageUrl: cloudinaryResult.secure_url,
@@ -82,7 +82,7 @@ module.exports = {
       const logoWithDesc = await CampaignUpload.findById(
         { _id: logoWithDescId },
         { company: 0, __v: 0 }
-      );
+      ).exec();
 
       res.status(200).json(logoWithDesc);
     } catch (error) {
@@ -94,18 +94,25 @@ module.exports = {
     const logoWithDescId = req.params.id;
 
     try {
-       await CampaignUpload.findByIdAndDelete(logoWithDescId)
-      res.status(200).json({status: true, message: 'Campaign successfully deleted'})
+      await CampaignUpload.findByIdAndDelete(logoWithDescId).exec();
+      res
+        .status(200)
+        .json({ status: true, message: 'Campaign successfully deleted' });
     } catch (error) {
       res.status(500).json({ status: false, message: error.message });
-    
     }
-
   },
   getAllCampaignImageAndDesc: async (req, res) => {
     try {
-      const logoWithDesc = await CampaignUpload.find({}, { __v: 0 });
-      res.status(200).json(logoWithDesc);
+      const logoWithDesc = await CampaignUpload.find().exec();
+
+      if (logoWithDesc.length > 0) {
+        return res.status(200).json(logoWithDesc);
+      } else {
+        return res
+          .status(404)
+          .json({ status: false, message: 'No campaigns found.' });
+      }
     } catch (error) {
       res.status(500).json({ status: false, message: error.message });
     }
@@ -113,9 +120,12 @@ module.exports = {
 
   clientSpecificCampaign: async (req, res) => {
     try {
-      const userId = req.params.id;
+      const userId = req.query.id;
 
-      const user = await User.findById({_id: userId});
+      console.log({ userId });
+
+      const user = await User.findById(userId).exec();
+
       if (!user) {
         return res.status(404).json({
           success: false,
@@ -123,9 +133,9 @@ module.exports = {
         });
       }
 
-      const userCampaigns = await CampaignUpload.find({user});
+      const userCampaigns = await CampaignUpload.find({ user: userId }).exec();
 
-      res.status(200).json({success: true, campaign: userCampaigns});
+      res.status(200).json({ success: true, campaigns: userCampaigns });
     } catch (error) {
       res.status(500).json({
         success: false,
