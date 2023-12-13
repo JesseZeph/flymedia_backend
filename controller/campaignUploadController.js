@@ -7,7 +7,6 @@ module.exports = {
   uploadCampaignImageAndDesc: async (req, res) => {
     try {
       const { user_id, ...others } = req.body;
-      console.log(user_id);
       const company = await Company.findOne({ userId: user_id }).exec();
       if (!company) {
         return res
