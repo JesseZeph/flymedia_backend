@@ -36,7 +36,6 @@ module.exports = {
         'jobDescription',
       ];
       const missingFields = requiredFields.filter((field) => !others[field]);
-      console.log({ missingFields });
 
       if (missingFields.length > 0) {
         return res.status(400).json({
@@ -120,8 +119,6 @@ module.exports = {
   clientSpecificCampaign: async (req, res) => {
     try {
       const userId = req.query.id;
-
-      console.log({ userId });
 
       const user = await User.findById(userId).exec();
 
