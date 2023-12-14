@@ -161,7 +161,8 @@ module.exports = {
       console.log(error);
       return res.status(500).json({
         success: false,
-        message: 'Error updating the influencer profile',
+        message: error.message,
+        // message: 'Error updating the influencer profile',
       });
     }
   },
