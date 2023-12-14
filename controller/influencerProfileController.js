@@ -12,7 +12,7 @@ module.exports = {
     }
 
     try {
-      const userId = req.user.id;
+      const userId = req.params.id;
 
       if (!userId) {
         return res

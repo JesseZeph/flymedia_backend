@@ -46,18 +46,24 @@ module.exports = {
         });
       }
 
-      const newApplication = new InfluencerApplication({
+      // const newApplication = new InfluencerApplication({
+      //   influencerId: userId,
+      //   campaignId: campaign_id,
+      // });
+
+      // await newApplication.save();
+
+      await InfluencerApplication.create({
         influencerId: userId,
         campaignId: campaign_id,
       });
-
-      await newApplication.save();
 
       res
         .status(201)
         .json({ success: true, message: 'Application submitted successfully' });
     } catch (error) {
-      console.error('Error:', error);
+      var message = error.message;
+      console.log({ message });
       res
         .status(500)
         .json({ success: false, message: 'Error submitting application' });
@@ -107,9 +113,11 @@ module.exports = {
       const campaignApplicantsList = await InfluencerApplication.find({
         campaignId: campaign_id,
       })
-        .populate('influencerId')
+        .populate({
+          path: 'influencerId',
+          populate: { path: 'niches', strictPopulate: false },
+        })
         .exec();
-
       if (!campaignApplicantsList || campaignApplicantsList.length === 0) {
         return res.status(404).json({
           success: false,
@@ -122,7 +130,7 @@ module.exports = {
 
       res.status(200).json({
         success: true,
-        influencerApplications: formattedApplicants,
+        influencerApplications: formattedApplicants ? formattedApplicants : [],
       });
     } catch (error) {
       console.error('Error:', error);
