@@ -202,7 +202,7 @@ module.exports = {
       res.status(200).json({
         ...others,
         userToken,
-        hasCompany: userCompany ? true : false,
+        company: userCompany ? userCompany : {},
       });
     } catch (error) {
       res.status(500).json({ status: false, message: error.message });
