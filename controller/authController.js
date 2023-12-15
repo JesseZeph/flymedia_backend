@@ -261,21 +261,18 @@ module.exports = {
       const user = await User.findOne({ email });
 
       if (!user) {
-        console.log('User not found:', email);
         return res.status(404).json({
           message: 'User not found',
         });
       }
 
       if (user.isVerified) {
-        console.log('Email already verified:', email);
         return res.status(400).json({
           message: 'Email already verified',
         });
       }
 
       if (user.verificationCode !== verificationCode) {
-        console.log('Invalid verification code:', verificationCode);
         return res.status(400).json({
           message: 'Invalid verification code',
         });
