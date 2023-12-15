@@ -8,19 +8,24 @@ module.exports = {
       const userId = req.body.influencerId;
       const campaign_id = req.body.campaignId;
 
-      const hasApplied = await InfluencerApplication.find({
-        influencerId: userId,
+      const campaign = await InfluencerApplication.findOne({
         campaignId: campaign_id,
       }).exec();
-      if (hasApplied.length > 0) {
-        return res.status(200).json({
-          success: false,
-          message: 'You already applied for this campaign',
-        });
+      if (campaign) {
+        const applied = campaign.influencers.includes(userId);
+        if (applied) {
+          return res.status(200).json({
+            success: false,
+            message: 'You already applied for this campaign',
+          });
+        }
       }
+
       const influencerVerified = await InfluencerProfile.findById(
         userId
       ).exec();
+
+      console.log({ influencerVerified });
       if (!influencerVerified) {
         return res.status(404).json({
           success: false,
@@ -46,17 +51,18 @@ module.exports = {
         });
       }
 
-      // const newApplication = new InfluencerApplication({
-      //   influencerId: userId,
-      //   campaignId: campaign_id,
-      // });
+      if (campaign) {
+        campaign.influencers.push(userId);
 
-      // await newApplication.save();
+        await campaign.save();
+      } else {
+        const newApplication = new InfluencerApplication({
+          campaignId: campaign_id,
+        });
+        newApplication.influencers.push(userId);
 
-      await InfluencerApplication.create({
-        influencerId: userId,
-        campaignId: campaign_id,
-      });
+        await newApplication.save();
+      }
 
       res
         .status(201)
@@ -78,7 +84,6 @@ module.exports = {
       })
         .populate('campaignId')
         .exec();
-      console.log({ influencerApplicationsList });
       if (
         !influencerApplicationsList ||
         influencerApplicationsList.length === 0
@@ -110,11 +115,11 @@ module.exports = {
     const campaign_id = req.query.id;
 
     try {
-      const campaignApplicantsList = await InfluencerApplication.find({
+      const campaignApplicantsList = await InfluencerApplication.findOne({
         campaignId: campaign_id,
       })
         .populate({
-          path: 'influencerId',
+          path: 'influencers',
           populate: { path: 'niches', strictPopulate: false },
         })
         .exec();
@@ -124,9 +129,7 @@ module.exports = {
           message: 'No influencer applications found for the campaign',
         });
       }
-      const formattedApplicants = campaignApplicantsList.map(
-        (applicant) => applicant.influencerId
-      );
+      const formattedApplicants = campaignApplicantsList.influencers;
 
       res.status(200).json({
         success: true,

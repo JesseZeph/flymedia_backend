@@ -3,6 +3,7 @@ const CryptoJS = require('crypto-js');
 const jwt = require('jsonwebtoken');
 const admin = require('firebase-admin');
 const sgMail = require('@sendgrid/mail');
+const Company = require('../models/VerifyCompany');
 
 async function sendVerificationCode(email, code, type) {
   const subject =
@@ -196,7 +197,13 @@ module.exports = {
       // Filter db to send back to user
       const { password, ...others } = user._doc;
 
-      res.status(200).json({ ...others, userToken });
+      const userCompany = await Company.findOne({ userId: user._id });
+
+      res.status(200).json({
+        ...others,
+        userToken,
+        hasCompany: userCompany ? true : false,
+      });
     } catch (error) {
       console.error('Error in loginUser:', error);
       res.status(500).json({ status: false, error: error.message });

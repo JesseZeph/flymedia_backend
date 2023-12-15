@@ -2,16 +2,19 @@ const mongoose = require('mongoose');
 
 const InfluencerApplicationSchema = new mongoose.Schema(
   {
-    influencerId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'InfluencerProfile',
-      unique: false,
-    },
     campaignId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'CampaignDetails',
       unique: false,
     },
+    influencers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'InfluencerProfile',
+        unique: false,
+        default: [],
+      },
+    ],
   },
   { timestamps: true }
 );
