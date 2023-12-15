@@ -25,7 +25,6 @@ module.exports = {
         userId
       ).exec();
 
-      console.log({ influencerVerified });
       if (!influencerVerified) {
         return res.status(404).json({
           success: false,
@@ -68,8 +67,6 @@ module.exports = {
         .status(201)
         .json({ success: true, message: 'Application submitted successfully' });
     } catch (error) {
-      var message = error.message;
-      console.log({ message });
       res
         .status(500)
         .json({ success: false, message: 'Error submitting application' });
@@ -123,10 +120,10 @@ module.exports = {
           populate: { path: 'niches', strictPopulate: false },
         })
         .exec();
-      if (!campaignApplicantsList || campaignApplicantsList.length === 0) {
+      if (!campaignApplicantsList) {
         return res.status(404).json({
           success: false,
-          message: 'No influencer applications found for the campaign',
+          message: 'No campaigns found.',
         });
       }
       const formattedApplicants = campaignApplicantsList.influencers;
@@ -136,7 +133,6 @@ module.exports = {
         influencerApplications: formattedApplicants ? formattedApplicants : [],
       });
     } catch (error) {
-      console.error('Error:', error);
       res.status(500).json({
         success: false,
         message: 'Error fetching influencer applications for the campaign',
