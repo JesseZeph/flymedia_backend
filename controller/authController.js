@@ -168,8 +168,8 @@ module.exports = {
 
       if (!user) {
         return res
-          .status(200)
-          .json({ status: false, message: 'Wrong credentials' });
+          .status(404)
+          .json({ status: false, message: 'User not found.' });
       }
 
       const decryptedPasswordBytes = CryptoJS.AES.decrypt(
@@ -205,8 +205,7 @@ module.exports = {
         hasCompany: userCompany ? true : false,
       });
     } catch (error) {
-      console.error('Error in loginUser:', error);
-      res.status(500).json({ status: false, error: error.message });
+      res.status(500).json({ status: false, message: error.message });
     }
   },
 
@@ -219,8 +218,8 @@ module.exports = {
 
       if (!influencers) {
         return res
-          .status(200)
-          .json({ status: false, message: 'Wrong credentials' });
+          .status(404)
+          .json({ status: false, message: 'User not found.' });
       }
 
       const decryptedPasswordBytes = CryptoJS.AES.decrypt(
@@ -251,7 +250,7 @@ module.exports = {
       res.status(200).json({ ...others, userToken });
     } catch (error) {
       console.error('Error in loginUser:', error);
-      res.status(500).json({ status: false, error: error.message });
+      res.status(500).json({ status: false, message: error.message });
     }
   },
 
