@@ -15,6 +15,8 @@ const verifyToken = (req, res, next) => {
       req.user = user;
       next();
     });
+  } else {
+    res.status(403).json({ status: false, message: 'You are not authorised' });
   }
 };
 
