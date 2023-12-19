@@ -166,10 +166,12 @@ module.exports = {
         { __v: 0, updatedAt: 0, createdAt: 0, email: 0 }
       );
 
-      if (!user) {
+      const userType = req.body.user_type;
+
+      if (!user || user.userType != userType) {
         return res
           .status(404)
-          .json({ status: false, message: 'User not found.' });
+          .json({ status: false, message: 'Account not found.' });
       }
 
       const decryptedPasswordBytes = CryptoJS.AES.decrypt(
@@ -282,12 +284,10 @@ module.exports = {
       user.isVerified = true;
       await user.save();
 
-      console.log('Email verified successfully:', email);
       res.status(200).json({
         message: 'Email verified successfully',
       });
     } catch (error) {
-      console.error('Error verifying email:', error);
       res.status(500).json({
         message: 'Internal server error',
       });
