@@ -77,6 +77,7 @@ module.exports = {
 
   updateInfluencerProfile: async (req, res) => {
     const influencerId = req.params.id;
+    const niches = req.body.niches;
 
     try {
       const userId = req.user.id;
@@ -136,13 +137,13 @@ module.exports = {
       if (req.body.niches && Array.isArray(req.body.niches)) {
         const nicheObjects = [];
 
-        for (const name of req.body.niches) {
-          const existingNiche = await Niche.findOne({ name });
+        for (const niche of req.body.niches) {
+          const existingNiche = await Niche.findOne({ name: niche });
           if (existingNiche) {
-            nicheObjects.push(existingNiche);
+            nicheObjects.push(existingNiche._id);
           } else {
-            const newNiche = await Niche.create({ name });
-            nicheObjects.push(newNiche);
+            const newNiche = await Niche.create({ name: niche });
+            nicheObjects.push(newNiche._id);
           }
         }
 
