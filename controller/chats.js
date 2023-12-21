@@ -38,6 +38,12 @@ const updateChat = async (req, res) => {
           data: savedChat,
         });
       });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'Chat not found',
+        data: null,
+      });
     }
   } catch (error) {
     res
@@ -63,8 +69,8 @@ const deleteChat = async (req, res) => {
 };
 
 const fetchAllChats = async (req, res) => {
-  const userId = req.body.user_id;
-  const userType = req.body.user_type;
+  const userId = req.query.user_id;
+  const userType = req.query.user_type;
 
   let chats;
 
@@ -95,8 +101,8 @@ const fetchAllChats = async (req, res) => {
 };
 
 const fetchSingleChat = async (req, res) => {
-  const influencerId = req.body.influencer_id;
-  const company_owner_id = req.body.company_owner_id;
+  const influencerId = req.query.influencer_id;
+  const company_owner_id = req.query.company_owner_id;
   let chats;
 
   try {
@@ -104,7 +110,6 @@ const fetchSingleChat = async (req, res) => {
       company: company_owner_id,
       influencer: influencerId,
     }).exec();
-    console.log({ chat });
 
     if (chat) {
       res
