@@ -27,16 +27,19 @@ const updateChat = async (req, res) => {
   const { chat_id, last_message } = req.body;
 
   try {
-    const chat = await Chat.findById(chat_id).exec();
+    const chat = await Chat.findByIdAndUpdate(
+      chat_id,
+      { last_message: last_message },
+      {
+        new: true,
+        returnDocument: 'after',
+      }
+    ).exec();
     if (chat) {
-      chat.last_message = last_message;
-
-      chat.save().then((savedChat) => {
-        res.status(200).json({
-          success: true,
-          message: 'Chat updated successfully',
-          data: savedChat,
-        });
+      res.status(200).json({
+        success: true,
+        message: 'Chat updated successfully',
+        data: chat,
       });
     } else {
       res.status(404).json({
