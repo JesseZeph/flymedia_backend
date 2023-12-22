@@ -106,13 +106,14 @@ const fetchAllChats = async (req, res) => {
 const fetchSingleChat = async (req, res) => {
   const influencerId = req.query.influencer_id;
   const company_owner_id = req.query.company_owner_id;
-  let chats;
 
   try {
     const chat = await Chat.findOne({
       company: company_owner_id,
       influencer: influencerId,
-    }).exec();
+    })
+      .populate('influencer')
+      .exec();
 
     if (chat) {
       res
