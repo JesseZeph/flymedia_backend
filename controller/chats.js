@@ -1,14 +1,13 @@
 const Chat = require('../models/ChatModel');
 
 const addChat = async (req, res) => {
-  const { company_owner_id, influencer_id, last_message, doc } = req.body;
+  const { company_owner_id, influencer_id, last_message } = req.body;
 
   try {
     const newChat = new Chat({
       company: company_owner_id,
       influencer: influencer_id,
       last_message: last_message,
-      firstore_doc: doc,
     });
 
     await newChat.save();
@@ -49,6 +48,8 @@ const updateChat = async (req, res) => {
       });
     }
   } catch (error) {
+    const err = error.message;
+    console.log({ err });
     res
       .status(500)
       .json({ success: false, message: 'Error updating chat', data: null });
@@ -94,7 +95,10 @@ const fetchAllChats = async (req, res) => {
     res
       .status(200)
       .json({ success: true, message: 'Chats retrieved', data: chats });
+    saveChats(chats, userType === 'Client');
   } catch (error) {
+    const err = error.message;
+    console.log({ err });
     res.status(500).json({
       success: false,
       message: 'Error occured, try later.',
@@ -132,6 +136,23 @@ const fetchSingleChat = async (req, res) => {
     });
   }
 };
+
+function saveChats(docs, isClientChats) {
+  try {
+    docs.forEach(async (doc) => {
+      if (isClientChats) {
+        doc.influencer = doc.influencer._id;
+      } else {
+        doc.company = doc.company._id;
+      }
+      doc.new_messages_count = 0;
+      await doc.save();
+    });
+  } catch (error) {
+    const err = error.message;
+    console.log({ err });
+  }
+}
 
 module.exports = {
   addChat,

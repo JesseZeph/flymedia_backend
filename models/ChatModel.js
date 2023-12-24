@@ -15,8 +15,9 @@ const ChatSchema = new schema(
     last_message: {
       type: String,
     },
-    firstore_doc: {
-      type: String,
+    new_messages_count: {
+      type: Number,
+      default: 1,
     },
   },
   {
@@ -26,6 +27,12 @@ const ChatSchema = new schema(
     },
   }
 );
+
+ChatSchema.post('findOneAndUpdate', function (doc, next) {
+  doc.new_messages_count++;
+  doc.save();
+  next();
+});
 
 const ChatModel = mongoose.model('Chat', ChatSchema);
 
