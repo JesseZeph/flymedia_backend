@@ -48,8 +48,6 @@ const updateChat = async (req, res) => {
       });
     }
   } catch (error) {
-    const err = error.message;
-    console.log({ err });
     res
       .status(500)
       .json({ success: false, message: 'Error updating chat', data: null });
@@ -95,10 +93,7 @@ const fetchAllChats = async (req, res) => {
     res
       .status(200)
       .json({ success: true, message: 'Chats retrieved', data: chats });
-    saveChats(chats, userType === 'Client');
   } catch (error) {
-    const err = error.message;
-    console.log({ err });
     res.status(500).json({
       success: false,
       message: 'Error occured, try later.',
@@ -137,22 +132,30 @@ const fetchSingleChat = async (req, res) => {
   }
 };
 
-function saveChats(docs, isClientChats) {
+const updateChatStatus = async (req, res) => {
+  const { chat_id } = req.body;
+
   try {
-    docs.forEach(async (doc) => {
-      if (isClientChats) {
-        doc.influencer = doc.influencer._id;
-      } else {
-        doc.company = doc.company._id;
-      }
-      doc.new_messages_count = 0;
-      await doc.save();
-    });
+    let chat = await Chat.findById(chat_id).exec();
+
+    if (chat) {
+      chat.new_messages_count = 0;
+      await chat.save();
+
+      return res
+        .status(200)
+        .json({ success: true, message: 'Chat status updated.' });
+    } else {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Chat not found.' });
+    }
   } catch (error) {
-    const err = error.message;
-    console.log({ err });
+    return res
+      .status(500)
+      .json({ success: false, message: 'Internal server error.' });
   }
-}
+};
 
 module.exports = {
   addChat,
@@ -160,4 +163,5 @@ module.exports = {
   fetchAllChats,
   updateChat,
   fetchSingleChat,
+  updateChatStatus,
 };

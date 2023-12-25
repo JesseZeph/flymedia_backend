@@ -7,6 +7,7 @@ const router = express.Router();
 router.get('/', verifyAndAuthorization, controller.fetchAllChats);
 router.get('/single', verifyAndAuthorization, controller.fetchSingleChat);
 router.post('/', verifyAndAuthorization, controller.addChat);
+router.post('/status', verifyAndAuthorization, controller.updateChatStatus);
 router.put('/', verifyAndAuthorization, controller.updateChat);
 router.delete('/', verifyAndAuthorization, controller.deleteChat);
 
