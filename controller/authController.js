@@ -118,22 +118,32 @@ module.exports = {
     const flyAdmin = req.body;
 
     try {
-      await admin.auth().getUserByEmail(flyAdmin.email);
-      res.status(400).json({ message: 'Email already registered' });
-    } catch (error) {
-      if (error.code === 'auth/user-not-found') {
-        try {
-          const newAdmin = await createUserInDatabase(flyAdmin, 'Admin');
-          res.status(201).json({ status: true, user: newAdmin });
-        } catch (error) {
-          console.error('Error saving admin to MongoDB', error);
-          res
-            .status(500)
-            .json({ status: false, error: 'Error creating admin' });
+        // Ensure that the requesting user is a SuperAdmin
+        const requestingUser = await User.findById(req.user.id);
+
+        if (!requestingUser || requestingUser.userType !== 'SuperAdmin') {
+            return res.status(403).json({
+                status: false,
+                error: 'Unauthorized. Only SuperAdmins can create Admins.',
+            });
         }
-      }
+
+        await admin.auth().getUserByEmail(flyAdmin.email);
+        return res.status(400).json({ message: 'Email already registered' });
+    } catch (error) {
+        if (error.code === 'auth/user-not-found') {
+            try {
+                // Create a new Admin only if the SuperAdmin is making the request
+                const newAdmin = await createUserInDatabase(flyAdmin, 'Admin');
+                res.status(201).json({ status: true, user: newAdmin });
+            } catch (error) {
+                console.error('Error saving admin to MongoDB', error);
+                res.status(500).json({ status: false, error: 'Error creating admin' });
+            }
+        }
     }
-  },
+},
+
 
   createSuperAdmin: async (req, res) => {
     const superAdmin = req.body;
@@ -207,51 +217,6 @@ module.exports = {
         company: userCompany ? userCompany : {},
       });
     } catch (error) {
-      res.status(500).json({ status: false, message: error.message });
-    }
-  },
-
-  influencerLogin: async (req, res) => {
-    try {
-      const influencers = await User.findOne(
-        { email: req.body.email },
-        { __v: 0, updatedAt: 0, createdAt: 0, email: 0 }
-      );
-
-      if (!influencers) {
-        return res
-          .status(404)
-          .json({ status: false, message: 'User not found.' });
-      }
-
-      const decryptedPasswordBytes = CryptoJS.AES.decrypt(
-        influencers.password,
-        process.env.SECRET
-      );
-      const decrypted = decryptedPasswordBytes.toString(CryptoJS.enc.Utf8);
-
-      if (decrypted !== req.body.password) {
-        return res
-          .status(400)
-          .json({ status: false, message: 'Wrong email or password' });
-      }
-
-      const userToken = jwt.sign(
-        {
-          id: influencers._id,
-          userType: influencers.userType,
-          uid: influencers.uid,
-        },
-        process.env.JWT_SEC,
-        { expiresIn: '21d' }
-      );
-
-      // Filter db to send back to user
-      const { password, ...others } = influencers._doc;
-
-      res.status(200).json({ ...others, userToken });
-    } catch (error) {
-      console.error('Error in loginUser:', error);
       res.status(500).json({ status: false, message: error.message });
     }
   },
