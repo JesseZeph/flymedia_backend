@@ -79,6 +79,8 @@ module.exports = {
     const influencerId = req.params.id;
     const niches = req.body.niches;
 
+    console.log({ niches });
+
     try {
       const userId = req.user.id;
       if (!userId) {
