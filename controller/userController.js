@@ -39,5 +39,23 @@ module.exports = {
         } catch (error) {
             res.status(500).json({message: "Error updating user!", error: error.message});
         }
-    }
+    },
+
+    getTotalUsers: async (req, res) => {
+        try {
+            const totalUsers = await User.countDocuments();
+            res.status(200).json({ totalUsers });
+        } catch (error) {
+            res.status(500).json({ message: "Error getting total users", error: error.message });
+        }
+    },
+    getTotalInfluencers: async (req, res) => {
+        try {
+            const totalInfluencers = await User.countDocuments({ userType: 'Influencer' });
+            res.status(200).json({ totalInfluencers });
+        } catch (error) {
+            res.status(500).json({ message: "Error getting total influencers", error: error.message });
+        }
+    },
+
 }

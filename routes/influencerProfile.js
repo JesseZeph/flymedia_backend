@@ -10,6 +10,7 @@ router.post(
   InfluencerProfileController.uploadProfilePhoto
 );
 router.get('/:id', InfluencerProfileController.getInfluencerProfile);
+router.get('/', InfluencerProfileController.allInfluencers);
 router.get(
   '/clientside/:id',
   InfluencerProfileController.getInfluencerProfileClientSide

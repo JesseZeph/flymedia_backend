@@ -264,4 +264,33 @@ module.exports = {
         .json({ success: false, message: 'Error retrieving user profile' });
     }
   },
+
+  allInfluencers: async (req, res) => {
+    try {
+      const influencerProfiles = await InfluencerProfile.find();
+
+      if (!influencerProfiles || influencerProfiles.length === 0) {
+        return res.status(404).json({ success: false, message: 'No influencer profiles found' });
+      }
+
+      const simplifiedProfiles = influencerProfiles.map((profile) => ({
+        _id: profile._id,
+        imageURL: profile.imageURL,
+        firstAndLastName: profile.firstAndLastName,
+        location: profile.location,
+        tikTokLink: profile.tikTokLink,
+        email: profile.email,
+        noOfTikTokFollowers: profile.noOfTikTokFollowers,
+        noOfTikTokLikes: profile.noOfTikTokLikes,
+        postsViews: profile.postsViews,
+        bio: profile.bio,
+        userId: profile.userId,
+      }));
+
+      res.status(200).json(simplifiedProfiles);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ success: false, message: 'Error retrieving influencer profiles' });
+    }
+  },
 };

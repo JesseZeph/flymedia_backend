@@ -67,15 +67,19 @@ module.exports = {
     },
     getCompany: async (req, res) => {
         const companyId = req.params.id;
-
+    
         try {
-            const company = await Company.findById({_id: companyId})
-            if(!company) {
-                return res.status(404).json({status: false, message: "Company not found!"})
-            }    
+            const company = await Company.findById(companyId);
+    
+            if (!company) {
+                console.error(`Company with ID ${companyId} not found`);
+                return res.status(404).json({ status: false, message: "Company not found!" });
+            }
+    
             res.status(200).json(company);
         } catch (error) {
-            res.status(500).json({status: false, message: "Error getting restaurant"});
+            console.error("Error getting company:", error);
+            res.status(500).json({ status: false, message: "Error getting company", error: error.message });
         }
     },
 
@@ -92,5 +96,45 @@ module.exports = {
             res.status(500).json({status: false, message: "Error deleting company"});            
         }
     },
+    getTotalCompanies: async (req, res) => {
+        try {
+            const totalCompanies = await Company.countDocuments();
+            res.status(200).json({ totalCompanies });
+        } catch (error) {
+            res.status(500).json({ status: false, message: "Error getting total companies", error: error.message });
+        }
+    },
+
+    getUnverifiedCompainies: async (req, res) => {
+        try {
+            const totalCompanies = await Company.countDocuments();
+            res.status(200).json({ totalCompanies });
+        } catch (error) {
+            res.status(500).json({ status: false, message: "Error getting total companies", error: error.message });
+        }
+    },
+
+    getAllUnverifiedCompanies: async (req, res) => {
+        try {
+            const unverifiedCompanies = await Company.find({ isVerified: false }, { __v: 0 });
+
+            res.status(200).json(unverifiedCompanies);
+        } catch (error) {
+            console.error("Error getting unverified companies:", error);
+            res.status(500).json({ status: false, message: "Error getting unverified companies", error: error.message });
+        }
+    },
+
+    countUnverified: async (req, res) => {
+        try {
+            const unverifiedCompanies = await Company.countDocuments({ isVerified: false });
+
+            res.status(200).json(unverifiedCompanies);
+        } catch (error) {
+            console.error("Error getting unverified companies:", error);
+            res.status(500).json({ status: false, message: "Error getting unverified companies", error: error.message });
+        }
+    },
+
 
 }

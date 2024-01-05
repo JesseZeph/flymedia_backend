@@ -4,8 +4,12 @@ const {verifyAndAuthorization, verifySuperAdmin, verifyAdmin, } = require('../mi
 
 
 router.post('/', verifyAndAuthorization, verifyCompanyController.addCompany);
-router.get('/:id', verifyAndAuthorization,  verifyCompanyController.getCompany);
-router.patch('/:id', verifySuperAdmin, verifyCompanyController.verificationStatus);
-router.get('/', verifyAdmin, verifySuperAdmin, verifyCompanyController.getAllCompany);
+router.get('/company/:id', verifyCompanyController.getCompany);
+router.patch('/:id', verifyCompanyController.verificationStatus);
+router.get('/', verifyCompanyController.getAllCompany);
+router.get('/totalCompanies', verifyCompanyController.getTotalCompanies);
+router.get('/pendingVerification', verifyCompanyController.
+getAllUnverifiedCompanies);
+router.get('/totalPending', verifyCompanyController.countUnverified);
 
 module.exports = router;
