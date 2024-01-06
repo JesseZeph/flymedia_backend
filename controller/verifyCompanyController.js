@@ -34,11 +34,6 @@ module.exports = {
         const companyId = req.params.id;
 
         try {
-            const adminUser = await User.findById(req.user.id);
-
-            if (!adminUser || !adminUser.userType ==="SuperAdmin") {
-                return res.status(403).json({ status: false, message: "Unauthorized. Only admins can verify companies." });
-            }
 
             const company = await Company.findById(companyId);
 
