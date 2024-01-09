@@ -83,7 +83,7 @@ module.exports = {
           res.status(201).json({ status: true, user: newUser });
         } catch (error) {
           console.error('Error saving user to MongoDB', error);
-          res.status(500).json({ status: false, error: 'Error creating user' });
+          res.status(500).json({ status: false, error: error.message });
         }
       }
     }
@@ -118,32 +118,33 @@ module.exports = {
     const flyAdmin = req.body;
 
     try {
-        // Ensure that the requesting user is a SuperAdmin
-        const requestingUser = await User.findById(req.user.id);
+      // Ensure that the requesting user is a SuperAdmin
+      const requestingUser = await User.findById(req.user.id);
 
-        if (!requestingUser || requestingUser.userType !== 'SuperAdmin') {
-            return res.status(403).json({
-                status: false,
-                error: 'Unauthorized. Only SuperAdmins can create Admins.',
-            });
-        }
+      if (!requestingUser || requestingUser.userType !== 'SuperAdmin') {
+        return res.status(403).json({
+          status: false,
+          error: 'Unauthorized. Only SuperAdmins can create Admins.',
+        });
+      }
 
-        await admin.auth().getUserByEmail(flyAdmin.email);
-        return res.status(400).json({ message: 'Email already registered' });
+      await admin.auth().getUserByEmail(flyAdmin.email);
+      return res.status(400).json({ message: 'Email already registered' });
     } catch (error) {
-        if (error.code === 'auth/user-not-found') {
-            try {
-                // Create a new Admin only if the SuperAdmin is making the request
-                const newAdmin = await createUserInDatabase(flyAdmin, 'Admin');
-                res.status(201).json({ status: true, user: newAdmin });
-            } catch (error) {
-                console.error('Error saving admin to MongoDB', error);
-                res.status(500).json({ status: false, error: 'Error creating admin' });
-            }
+      if (error.code === 'auth/user-not-found') {
+        try {
+          // Create a new Admin only if the SuperAdmin is making the request
+          const newAdmin = await createUserInDatabase(flyAdmin, 'Admin');
+          res.status(201).json({ status: true, user: newAdmin });
+        } catch (error) {
+          console.error('Error saving admin to MongoDB', error);
+          res
+            .status(500)
+            .json({ status: false, error: 'Error creating admin' });
         }
+      }
     }
-},
-
+  },
 
   createSuperAdmin: async (req, res) => {
     const superAdmin = req.body;
