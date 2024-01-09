@@ -19,6 +19,7 @@ const publishCampaignRouter = require('./routes/publishCampaign');
 const influencerApplicationRouter = require('./routes/influencerApplication');
 const confirmDataRouter = require('./routes/confirmDataRoute');
 const chatRouter = require('./routes/chats');
+const appleRouter = require('./routes/appleRouter');
 
 dotenv.config();
 
@@ -57,6 +58,7 @@ app.use('/api/publish', publishCampaignRouter);
 app.use('/api/applications', influencerApplicationRouter);
 app.use('/api/confirm', confirmDataRouter);
 app.use('/api/chats', chatRouter);
+app.use('/apple', appleRouter);
 
 app.listen(process.env.PORT || port, () =>
   console.log(`Flymedia is listening to port ${process.env.PORT}!`)
