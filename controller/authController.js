@@ -32,13 +32,6 @@ async function sendVerificationCode(email, code, type) {
 }
 
 async function createUserInDatabase(user, userType) {
-  const userResponse = await admin.auth().createUser({
-    email: user.email,
-    password: user.password,
-    emailVerified: false,
-    disabled: false,
-  });
-
   const newUser = new User({
     fullname: user.fullname,
     email: user.email,
@@ -46,7 +39,6 @@ async function createUserInDatabase(user, userType) {
       user.password,
       process.env.SECRET
     ).toString(),
-    uid: userResponse.uid,
     userType: userType || 'Client',
   });
 
@@ -55,67 +47,79 @@ async function createUserInDatabase(user, userType) {
 
   sendVerificationCode(user.email, newUser.verificationCode, 'email');
 
-  // const userToken = jwt.sign({
-  //     id: newUser._id,
-  //     userType: newUser.userType,
-  //     uid: newUser.uid,
-  // }, process.env.JWT_SEC, { expiresIn: '21d' });
-
-  // newUser.userToken = userToken;
-
   return newUser;
+}
+
+async function resetFirebasePassword(userMail, newPassword) {
+  try {
+    const record = await admin.auth().getUserByEmail(userMail);
+    if (record) {
+      const id = await record.getUid();
+      const newRecord = await admin.auth().updateUser(id, {
+        email: userMail,
+        password: newPassword,
+      });
+    }
+  } catch (error) {
+    console.log({ error });
+  }
 }
 
 module.exports = {
   createUser: async (req, res) => {
     const user = req.body;
+    const existingUser = await User.findOne({ email: user.email });
+
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ status: false, error: 'User already exists.' });
+    }
 
     try {
-      await admin.auth().getUserByEmail(user.email);
-      res.status(400).json({ message: 'Email already registered' });
+      const newUser = await createUserInDatabase(user, user.userType);
+      res.status(201).json({ status: true, user: newUser });
     } catch (error) {
-      if (error.code === 'auth/user-not-found') {
-        try {
-          const newUser = await createUserInDatabase(user, user.userType);
-
-          // Generate a new JWT token for the user
-
-          res.status(201).json({ status: true, user: newUser });
-        } catch (error) {
-          console.error('Error saving user to MongoDB', error);
-          res.status(500).json({ status: false, error: error.message });
-        }
-      }
+      console.error('Error saving user to MongoDB', error);
+      res.status(500).json({ status: false, error: error.message });
     }
   },
 
   createInfluencer: async (req, res) => {
     const influencer = req.body;
+    const existingUser = await User.findOne({ email: influencer.email });
+
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ status: false, error: 'User already exists.' });
+    }
 
     try {
-      await admin.auth().getUserByEmail(influencer.email);
-      res.status(400).json({ message: 'Email already registered' });
-    } catch (error) {
-      if (error.code === 'auth/user-not-found') {
-        try {
-          const newInfluencer = await createUserInDatabase(
-            influencer,
-            'Influencer'
-          );
+      const newInfluencer = await createUserInDatabase(
+        influencer,
+        'Influencer'
+      );
 
-          res.status(201).json({ status: true, user: newInfluencer });
-        } catch (error) {
-          console.error('Error saving influencer to MongoDB', error);
-          res
-            .status(500)
-            .json({ status: false, error: 'Error creating influencer' });
-        }
-      }
+      res.status(201).json({ status: true, user: newInfluencer });
+    } catch (error) {
+      console.error('Error saving influencer to MongoDB', error);
+      res
+        .status(500)
+        .json({ status: false, error: 'Error creating influencer' });
     }
   },
 
   createAdmin: async (req, res) => {
     const flyAdmin = req.body;
+
+    const existingUser = await User.findOne({ email: flyAdmin.email });
+
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ status: false, error: 'User already exists.' });
+    }
 
     try {
       // Ensure that the requesting user is a SuperAdmin
@@ -128,45 +132,36 @@ module.exports = {
         });
       }
 
-      await admin.auth().getUserByEmail(flyAdmin.email);
-      return res.status(400).json({ message: 'Email already registered' });
+      const newAdmin = await createUserInDatabase(flyAdmin, 'Admin');
+      res.status(201).json({ status: true, user: newAdmin });
     } catch (error) {
-      if (error.code === 'auth/user-not-found') {
-        try {
-          // Create a new Admin only if the SuperAdmin is making the request
-          const newAdmin = await createUserInDatabase(flyAdmin, 'Admin');
-          res.status(201).json({ status: true, user: newAdmin });
-        } catch (error) {
-          console.error('Error saving admin to MongoDB', error);
-          res
-            .status(500)
-            .json({ status: false, error: 'Error creating admin' });
-        }
-      }
+      console.error('Error saving admin to MongoDB', error);
+      res.status(500).json({ status: false, error: 'Error creating admin' });
     }
   },
 
   createSuperAdmin: async (req, res) => {
     const superAdmin = req.body;
 
+    const existingUser = await User.findOne({ email: superAdmin.email });
+
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ status: false, error: 'User already exists.' });
+    }
+
     try {
-      await admin.auth().getUserByEmail(superAdmin.email);
-      res.status(400).json({ message: 'Email already registered' });
+      const newSuperAdmin = await createUserInDatabase(
+        superAdmin,
+        'SuperAdmin'
+      );
+      res.status(201).json({ status: true, user: newSuperAdmin });
     } catch (error) {
-      if (error.code === 'auth/user-not-found') {
-        try {
-          const newSuperAdmin = await createUserInDatabase(
-            superAdmin,
-            'SuperAdmin'
-          );
-          res.status(201).json({ status: true, user: newSuperAdmin });
-        } catch (error) {
-          console.error('Error saving super admin to MongoDB', error);
-          res
-            .status(500)
-            .json({ status: false, error: 'Error creating super admin' });
-        }
-      }
+      console.error('Error saving super admin to MongoDB', error);
+      res
+        .status(500)
+        .json({ status: false, error: 'Error creating super admin' });
     }
   },
 
@@ -358,10 +353,15 @@ module.exports = {
     try {
       const { email, newPassword } = req.body;
 
-      if (!newPassword) {
-        console.log('New password is missing in the request body');
+      if (!newPassword || newPassword.length == 0) {
         return res.status(400).json({
           message: 'New password is missing in the request body',
+        });
+      }
+
+      if (!email || email.length == 0) {
+        return res.status(400).json({
+          message: 'Email is missing in the request body',
         });
       }
 
@@ -384,6 +384,8 @@ module.exports = {
       user.passwordChangedDate = Date.now();
       await user.save();
 
+      resetFirebasePassword(email, newPassword);
+
       // Generate a new JWT token for the user
       const userToken = jwt.sign(
         {
@@ -400,7 +402,7 @@ module.exports = {
       res.status(200).json({
         ...others,
         userToken,
-        message: 'Password change successful',
+        message: 'Password changed successful',
       });
     } catch (error) {
       console.error('Error changing password:', error);

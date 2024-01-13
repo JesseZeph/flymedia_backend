@@ -4,7 +4,6 @@ const router = express.Router();
 const controller = require('../controller/appleController');
 
 router.post('/callbacks/sign_up_with_apple', controller.callback);
-
-router.post('/sign_up_with_apple', controller.signUpApple);
+router.post('/confirm_tokens', controller.confirmAppleTokens);
 
 module.exports = router;

@@ -31,16 +31,16 @@ module.exports = {
 
       const cloudinaryResult = await cloudinary.uploader.upload(req.file.path);
 
-      const selectedNicheNames = req.body.niches;
-
+      const niches = req.body.niches;
+      const nicheArray = niches.split(',');
       const nicheObjects = [];
 
-      for (const name of selectedNicheNames) {
-        const existingNiche = await Niche.findOne({ name });
+      for (const name of nicheArray) {
+        const existingNiche = await Niche.findOne({ name: name.trim() });
         if (existingNiche) {
           nicheObjects.push(existingNiche);
         } else {
-          const newNiche = await Niche.create({ name });
+          const newNiche = await Niche.create({ name: name.trim() });
           nicheObjects.push(newNiche);
         }
       }
@@ -78,11 +78,11 @@ module.exports = {
   updateInfluencerProfile: async (req, res) => {
     const influencerId = req.params.id;
     const niches = req.body.niches;
-
-    console.log({ niches });
+    const nicheArray = niches.split(',');
 
     try {
       const userId = req.user.id;
+
       if (!userId) {
         return res.status(403).json({
           success: false,
@@ -99,13 +99,13 @@ module.exports = {
           .json({ success: false, message: 'Influencer profile not found' });
       }
 
-      if (existingProfile.userId.toString() !== userId.toString()) {
-        return res.status(403).json({
-          success: false,
-          message:
-            "Unauthorized. You don't have permission to update this profile.",
-        });
-      }
+      // if (existingProfile.userId.toString() !== userId.toString()) {
+      //   return res.status(403).json({
+      //     success: false,
+      //     message:
+      //       "Unauthorized. You don't have permission to update this profile.",
+      //   });
+      // }
 
       if (req.file) {
         existingProfile.imageURL = (
@@ -136,15 +136,15 @@ module.exports = {
       if (req.body.bio) {
         existingProfile.bio = req.body.bio;
       }
-      if (req.body.niches && Array.isArray(req.body.niches)) {
+      if (req.body.niches) {
         const nicheObjects = [];
 
-        for (const niche of req.body.niches) {
-          const existingNiche = await Niche.findOne({ name: niche });
+        for (const niche of nicheArray) {
+          const existingNiche = await Niche.findOne({ name: niche.trim() });
           if (existingNiche) {
             nicheObjects.push(existingNiche._id);
           } else {
-            const newNiche = await Niche.create({ name: niche });
+            const newNiche = await Niche.create({ name: niche.trim() });
             nicheObjects.push(newNiche._id);
           }
         }
@@ -161,7 +161,6 @@ module.exports = {
         mongoDBURL: updatedInfluencerProfile.cloudinaryURL,
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         success: false,
         message: 'Error updating the influencer profile',
@@ -270,7 +269,9 @@ module.exports = {
       const influencerProfiles = await InfluencerProfile.find();
 
       if (!influencerProfiles || influencerProfiles.length === 0) {
-        return res.status(404).json({ success: false, message: 'No influencer profiles found' });
+        return res
+          .status(404)
+          .json({ success: false, message: 'No influencer profiles found' });
       }
 
       const simplifiedProfiles = influencerProfiles.map((profile) => ({
@@ -290,7 +291,10 @@ module.exports = {
       res.status(200).json(simplifiedProfiles);
     } catch (error) {
       console.log(error);
-      return res.status(500).json({ success: false, message: 'Error retrieving influencer profiles' });
+      return res.status(500).json({
+        success: false,
+        message: 'Error retrieving influencer profiles',
+      });
     }
   },
 };

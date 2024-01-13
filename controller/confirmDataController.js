@@ -1,6 +1,4 @@
-const CryptoJS = require('crypto-js');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
 const Company = require('../models/VerifyCompany');
 require('dotenv').config();
 
