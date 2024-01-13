@@ -32,22 +32,26 @@ async function sendVerificationCode(email, code, type) {
 }
 
 async function createUserInDatabase(user, userType) {
-  const newUser = new User({
-    fullname: user.fullname,
-    email: user.email,
-    password: CryptoJS.AES.encrypt(
-      user.password,
-      process.env.SECRET
-    ).toString(),
-    userType: userType || 'Client',
-  });
+  try {
+    const newUser = new User({
+      fullname: user.fullname,
+      email: user.email,
+      password: CryptoJS.AES.encrypt(
+        user.password,
+        process.env.SECRET
+      ).toString(),
+      userType: userType || 'Client',
+    });
 
-  newUser.verificationCode = newUser.generateVerificationCode();
-  await newUser.save();
+    newUser.verificationCode = newUser.generateVerificationCode();
+    await newUser.save();
 
-  sendVerificationCode(user.email, newUser.verificationCode, 'email');
+    sendVerificationCode(user.email, newUser.verificationCode, 'email');
 
-  return newUser;
+    return newUser;
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function resetFirebasePassword(userMail, newPassword) {
@@ -61,7 +65,7 @@ async function resetFirebasePassword(userMail, newPassword) {
       });
     }
   } catch (error) {
-    console.log({ error });
+    throw error;
   }
 }
 
@@ -405,7 +409,6 @@ module.exports = {
         message: 'Password changed successful',
       });
     } catch (error) {
-      console.error('Error changing password:', error);
       res.status(500).json({
         message: 'Internal server error',
       });
