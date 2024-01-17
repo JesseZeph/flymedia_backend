@@ -60,7 +60,7 @@ const verifyInfluencer = (req, res, next) => {
 
 const verifyAdmin = (req, res, next) => {
   verifyToken(req, res, () => {
-    if (req.user.userType === 'Admin') {
+    if (req.user.userType === 'Admin' || req.user.userType === 'SuperAdmin') {
       next();
     } else {
       sendError(res, 403, 'You are not authorized as an Admin.');
