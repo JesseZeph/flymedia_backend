@@ -25,7 +25,7 @@ const getAllSubscriptions = async (req, res) => {
 };
 
 const createNewSubsriptions = async (req, res) => {
-  const { price, name, features, color } = req.body;
+  const { price, name, features, color, description } = req.body;
   try {
     const subscriptionExists = await SubscriptionModel.findOne({ name: name });
     if (subscriptionExists) {
@@ -41,6 +41,7 @@ const createNewSubsriptions = async (req, res) => {
       name: name,
       color_code: color || 'ffffff',
       features: features,
+      description: description,
     });
 
     return res.status(200).json({
@@ -87,7 +88,7 @@ const deleteSubscriptions = async (req, res) => {
 };
 
 const editSubscriptions = async (req, res) => {
-  const { sub_id, price, name, features, color } = req.body;
+  const { sub_id, price, name, features, color, description } = req.body;
   try {
     var subscription = await SubscriptionModel.findByIdAndUpdate(
       sub_id,
@@ -96,6 +97,7 @@ const editSubscriptions = async (req, res) => {
         name: name,
         features: features,
         color_code: color,
+        description: description,
       },
       {
         returnDocument: 'after',
