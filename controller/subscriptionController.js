@@ -1,20 +1,18 @@
-const SubscriptionModel = require('../models/subsciptionModel');
+const SubscriptionModel = require('../models/Subscription');
 
 const getAllSubscriptions = async (req, res) => {
   try {
-    const subscriptions = await SubscriptionModel.find({});
+    const subscriptions = await SubscriptionModel.find({}, {__v: 0});
     if (subscriptions) {
-      return res.status(200).json({
-        status: true,
-        message: 'Subscriptions retrieved successfully',
-        data: subscriptions,
-      });
+      return res.status(200).json(
+         subscriptions
+      );
     }
-    return res.status(200).json({
-      status: true,
-      message: 'No subscriptions found',
-      data: [],
-    });
+    // return res.status(200).json({
+    //   status: true,
+    //   message: 'No subscriptions found',
+    //   data: [],
+    // });
   } catch (error) {
     return res.status(500).json({
       status: false,
