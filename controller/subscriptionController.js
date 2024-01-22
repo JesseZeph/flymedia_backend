@@ -85,7 +85,7 @@ const deleteSubscriptions = async (req, res) => {
 };
 
 const editSubscriptions = async (req, res) => {
-  const { sub_id, price, name, features, color, description } = req.body;
+  const { sub_id, price, name, features, color } = req.body;
   try {
     var subscription = await SubscriptionModel.findByIdAndUpdate(
       sub_id,
