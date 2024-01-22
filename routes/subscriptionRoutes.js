@@ -3,14 +3,14 @@ const express = require('express');
 const router = express.Router();
 
 const controller = require('../controller/subscriptionController');
-const { verifySuperAdmin } = require('../middleware/verifyToken');
+// const {  } = require('../middleware/verifyToken');
 
 router.get('/', controller.getAllSubscriptions);
 
-router.post('/', verifySuperAdmin, controller.createNewSubsriptions);
+router.post('/',  controller.createNewSubsriptions);
 
-router.put('/', verifySuperAdmin, controller.editSubscriptions);
+router.put('/',  controller.editSubscriptions);
 
-router.delete('/', verifySuperAdmin, controller.deleteSubscriptions);
+router.delete('/', controller.deleteSubscriptions);
 
 module.exports = router;
