@@ -39,7 +39,6 @@ const createNewSubsriptions = async (req, res) => {
       name: name,
       color_code: color || 'ffffff',
       features: features,
-      description: description,
     });
 
     return res.status(200).json({
@@ -95,7 +94,6 @@ const editSubscriptions = async (req, res) => {
         name: name,
         features: features,
         color_code: color,
-        description: description,
       },
       {
         returnDocument: 'after',
