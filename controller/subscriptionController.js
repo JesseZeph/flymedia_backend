@@ -4,8 +4,11 @@ const getAllSubscriptions = async (req, res) => {
   try {
     const subscriptions = await SubscriptionModel.find({}, {__v: 0});
     if (subscriptions) {
-      return res.status(200).json(
-         subscriptions
+      return res.status(200).json({
+        status: true,
+        message: 'Successfully fetched all the subscription records',
+        data: subscriptions
+      }
       );
     }
     // return res.status(200).json({
