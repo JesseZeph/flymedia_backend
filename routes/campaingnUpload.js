@@ -1,6 +1,10 @@
 const router = require('express').Router();
 const UploadImageController = require('../controller/campaignUploadController');
-const { verifyAndAuthorization } = require('../middleware/verifyToken');
+const AssignedCampaignController = require('../controller/assignedCampaignController');
+const {
+  verifyAndAuthorization,
+  verifyClient,
+} = require('../middleware/verifyToken');
 const upload = require('../middleware/multer');
 
 router.post(
@@ -9,6 +13,7 @@ router.post(
   upload.single('image'),
   UploadImageController.uploadCampaignImageAndDesc
 );
+router.post('/assign', verifyClient, UploadImageController.assignInfluencer);
 
 // router.get('/:id', UploadImageController.getCampaignImageAndDesc);
 router.delete(
@@ -22,6 +27,17 @@ router.get(
   '/client',
   verifyAndAuthorization,
   UploadImageController.clientSpecificCampaign
+);
+router.get(
+  '/assign/:id',
+  verifyAndAuthorization,
+  AssignedCampaignController.fetchUserCampaigns
+);
+
+router.put(
+  '/assign',
+  verifyAndAuthorization,
+  AssignedCampaignController.campaignAction
 );
 
 module.exports = router;

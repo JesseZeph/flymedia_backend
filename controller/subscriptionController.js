@@ -1,4 +1,5 @@
 const SubscriptionModel = require('../models/subsciptionModel');
+const VerifyCompany = require('../models/VerifyCompany');
 
 const getAllSubscriptions = async (req, res) => {
   try {
@@ -123,9 +124,45 @@ const editSubscriptions = async (req, res) => {
     });
   }
 };
+
+const verifySubscription = async (req, res) => {};
+
+const fetchUserSubscription = async (req, res) => {
+  const user_id = req.params.id;
+
+  try {
+    const company = await VerifyCompany.findOne({ userId: user_id }).populate(
+      'subscription'
+    );
+    if (!company) {
+      return res.status(400).json({
+        status: false,
+        message: 'Could not find company registered',
+        data: null,
+      });
+    }
+    const subscriptionData = {
+      subscription: company.subscription,
+      expires: company.expiry,
+    };
+
+    return res.status(200).json({
+      status: true,
+      message: 'Subscription retrieved successfully',
+      data: subscriptionData,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: 'Error occured while retrieving subscription',
+    });
+  }
+};
 module.exports = {
   getAllSubscriptions,
   createNewSubsriptions,
   deleteSubscriptions,
   editSubscriptions,
+  verifySubscription,
+  fetchUserSubscription,
 };

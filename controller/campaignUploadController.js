@@ -2,6 +2,8 @@ const cloudinary = require('../utils/cloudinary');
 const CampaignUpload = require('../models/CampaignUpload');
 const Company = require('../models/VerifyCompany');
 const User = require('../models/User');
+const InfluencerProfile = require('../models/InfluencerProfile');
+const ActiveCampaign = require('../models/activeCampaigns');
 
 module.exports = {
   uploadCampaignImageAndDesc: async (req, res) => {
@@ -159,6 +161,46 @@ module.exports = {
       res.status(200).json(results);
     } catch (error) {
       res.status(500).json(error);
+    }
+  },
+  assignInfluencer: async (req, res) => {
+    const details = req.body;
+
+    try {
+      const assignedInfluencer = await InfluencerProfile.findOne({
+        email: details.influencer_mail,
+      });
+
+      if (
+        !assignedInfluencer ||
+        assignedInfluencer.firstAndLastName != details.influencer_name
+      ) {
+        return res.status(400).json({
+          status: false,
+          message: 'Influencer with provided details not found',
+          data: null,
+        });
+      }
+      const campaign = new ActiveCampaign({
+        campaign: details.campaign_id,
+        influencer: assignedInfluencer._id,
+        client: req.user.id,
+      });
+      const new_campaign = await campaign.save();
+      await CampaignUpload.findByIdAndUpdate(details.campaign_id, {
+        assigned: assignedInfluencer._id,
+      });
+      return res.status(200).json({
+        status: true,
+        message: 'Influencer assigned successfully.',
+        data: new_campaign,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: false,
+        message: 'An error occured with assigning influencer',
+        data: null,
+      });
     }
   },
 };
