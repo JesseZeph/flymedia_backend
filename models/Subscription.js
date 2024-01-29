@@ -11,10 +11,6 @@ const SubscriptionSchema = new schema({
     type: String,
     required: true,
   },
-  description: {
-    type: String,
-    required: true,
-  },
   features: {
     type: String,
     required: true,

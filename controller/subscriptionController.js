@@ -1,21 +1,21 @@
-const SubscriptionModel = require('../models/subsciptionModel');
+const SubscriptionModel = require('../models/Subscription');
 const VerifyCompany = require('../models/VerifyCompany');
 
 const getAllSubscriptions = async (req, res) => {
   try {
-    const subscriptions = await SubscriptionModel.find({});
+    const subscriptions = await SubscriptionModel.find({}, { __v: 0 });
     if (subscriptions) {
       return res.status(200).json({
         status: true,
-        message: 'Subscriptions retrieved successfully',
+        message: 'Successfully fetched all the subscription records',
         data: subscriptions,
       });
     }
-    return res.status(200).json({
-      status: true,
-      message: 'No subscriptions found',
-      data: [],
-    });
+    // return res.status(200).json({
+    //   status: true,
+    //   message: 'No subscriptions found',
+    //   data: [],
+    // });
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -42,7 +42,6 @@ const createNewSubsriptions = async (req, res) => {
       name: name,
       color_code: color || 'ffffff',
       features: features,
-      description: description,
     });
 
     return res.status(200).json({
@@ -89,7 +88,7 @@ const deleteSubscriptions = async (req, res) => {
 };
 
 const editSubscriptions = async (req, res) => {
-  const { sub_id, price, name, features, color, description } = req.body;
+  const { sub_id, price, name, features, color } = req.body;
   try {
     var subscription = await SubscriptionModel.findByIdAndUpdate(
       sub_id,
@@ -98,7 +97,6 @@ const editSubscriptions = async (req, res) => {
         name: name,
         features: features,
         color_code: color,
-        description: description,
       },
       {
         returnDocument: 'after',
