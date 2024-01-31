@@ -7,13 +7,13 @@ const {
 } = require('../middleware/verifyToken');
 const upload = require('../middleware/multer');
 
+router.post('/assign', verifyClient, UploadImageController.assignInfluencer);
 router.post(
   '/',
   verifyAndAuthorization,
   upload.single('image'),
   UploadImageController.uploadCampaignImageAndDesc
 );
-router.post('/assign', verifyClient, UploadImageController.assignInfluencer);
 
 // router.get('/:id', UploadImageController.getCampaignImageAndDesc);
 router.delete(
