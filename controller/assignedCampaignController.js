@@ -11,11 +11,16 @@ const fetchUserCampaigns = async (req, res) => {
       const activeCampaigns = await ActiveCampaign.find({
         influencer: user_id,
       })
-        .populate(
-          'campaign',
-          '_id imageUrl jobTitle country jobDescription rateTo'
-        )
+        .populate({
+          path: 'campaign',
+          populate: { path: 'company', select: 'companyName -_id' },
+          select: '_id imageUrl jobTitle country jobDescription rateTo company',
+        })
         .exec();
+      // .populate(
+      //   'campaign',
+      //   '_id imageUrl jobTitle country jobDescription rateTo'
+      // )
 
       return res.status(200).json({
         status: true,

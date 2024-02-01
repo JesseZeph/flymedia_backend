@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const companyDetailsSchema = new mongoose.Schema({
   company: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'VerifyCompany',
     required: true,
   },
