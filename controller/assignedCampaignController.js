@@ -17,11 +17,6 @@ const fetchUserCampaigns = async (req, res) => {
           select: '_id imageUrl jobTitle country jobDescription rateTo company',
         })
         .exec();
-      // .populate(
-      //   'campaign',
-      //   '_id imageUrl jobTitle country jobDescription rateTo'
-      // )
-
       return res.status(200).json({
         status: true,
         message: 'Campaigns retrieved successfully',
