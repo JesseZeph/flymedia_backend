@@ -37,6 +37,7 @@ mongoose
   .catch((err) => console.error('MongoDB connection error:', err));
 
 app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.json({ verify: (req, res, buf) => { req.rawBody = buf; } }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(helmet());
 app.use(sanitize());
@@ -58,25 +59,27 @@ app.use('/api/account', accountRouter);
 app.use('/apple', appleRouter);
 app.use('/api/checkout', paymentRouter);
 
-const verifyWebhookSignature = async (req, res, next) => {
+const verifyWebhookSignature = (req, res, next) => {
   const sigHeader = req.headers['stripe-signature'];
+  const rawBody = req.rawBody;
+
   try {
-    const event = stripe.webhooks.constructEvent(req.rawBody, sigHeader, process.env.STRIPE_WEBHOOK_SECRET);
-    req.event = event;
-    next();
+    req.event = stripe.webhooks.constructEvent(rawBody, sigHeader, process.env.STRIPE_WEBHOOK_SECRET);
+    return next();
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message);
     return res.status(400).send('Webhook signature verification failed');
   }
 };
 
-app.post('/webhook', verifyWebhookSignature, (req, res) => {
+app.use('/webhook', express.raw({ type: 'application/json' }), verifyWebhookSignature, (req, res) => {
   const payload = req.body;
 
   handleWebhookEvent(payload);
   
   return res.status(200).send();
 });
+
 
 app.listen(process.env.PORT || port, () =>
   console.log(`Flymedia is listening to port ${process.env.PORT}!`)
