@@ -64,13 +64,15 @@ const verifyWebhookSignature = (req, res, next) => {
   const rawBody = req.rawBody;
 
   try {
-    req.event = stripe.webhooks.constructEvent(rawBody, sigHeader, process.env.STRIPE_WEBHOOK_SECRET);
+    const event = stripe.webhooks.constructEvent(rawBody, sigHeader, process.env.STRIPE_WEBHOOK_SECRET);
+    req.event = event;
     return next();
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message);
     return res.status(400).send('Webhook signature verification failed');
   }
 };
+
 
 app.post('/api/webhooks', express.raw({ type: 'application/json' }), verifyWebhookSignature, (req, res) => {
   const payload = req.body;
