@@ -66,6 +66,14 @@ app.use('/api/account', accountRouter);
 app.use('/apple', appleRouter);
 app.use('/api/checkout', paymentRouter);
 
+app.post('/webhook', (req, res) => {
+  const payload = req.body;
+
+  handleWebhookEvent(payload);
+  
+  return res.status(200).send();
+});
+
 app.listen(process.env.PORT || port, () =>
   console.log(`Flymedia is listening to port ${process.env.PORT}!`)
 );
