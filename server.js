@@ -22,6 +22,7 @@ const chatRouter = require('./routes/chats');
 const appleRouter = require('./routes/appleRouter');
 const subscriptionRouter = require('./routes/subscriptionRoutes');
 const accountRouter = require('./routes/accountRouter');
+const paymentRouter = require('./routes/paymentRouter');
 
 dotenv.config();
 
@@ -63,6 +64,7 @@ app.use('/api/chats', chatRouter);
 app.use('/api/subscriptions', subscriptionRouter);
 app.use('/api/account', accountRouter);
 app.use('/apple', appleRouter);
+app.use('/api/checkout', paymentRouter);
 
 app.listen(process.env.PORT || port, () =>
   console.log(`Flymedia is listening to port ${process.env.PORT}!`)
