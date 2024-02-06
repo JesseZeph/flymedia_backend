@@ -38,7 +38,10 @@ mongoose
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
-app.use(process.env.URL_CONFIG + '/api/webhooks', express.raw({ type: 'application/json' }))
+
+URL_CONFIG="https://flymediabackend-production.up.railway.app"
+
+app.use(URL_CONFIG + '/api/webhooks', express.raw({ type: 'application/json' }))
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
