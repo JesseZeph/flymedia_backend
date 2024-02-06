@@ -62,27 +62,80 @@ app.use('/api/checkout', paymentRouter);
 endpointSecret = "whsec_AeqnnLKiS8h2BfCikqxfcplSBqjP2Gwl"
 
 
-const verifyWebhookSignature = (req, res, next) => {
-  const sigHeader = req.headers['stripe-signature'];
-  const rawBody = req.rawBody;
+// const verifyWebhookSignature = (req, res, next) => {
+//   const sigHeader = req.headers['stripe-signature'];
+//   const rawBody = req.rawBody;
+
+//   try {
+//     const event = stripe.webhooks.constructEvent(rawBody, sigHeader, endpointSecret);
+//     req.event = event;
+//     return next();
+//   } catch (err) {
+//     console.error('Webhook signature verification failed:', err.message);
+//     return res.status(400).send('Webhook signature verification failed');
+//   }
+// };
+
+
+// app.post('/api/webhooks', verifyWebhookSignature, express.raw({ type: 'application/json' }), (req, res) => {
+//   const event = JSON.parse(req.rawBody); 
+//   handleWebhookEvent(event);
+//   res.status(200).end();
+// });
+
+app.post('/api/webhooks', express.raw({type: 'application/json'}), async (request, response) => {
+  const sig = request.headers['stripe-signature'];
+
+  let event;
 
   try {
-    const event = stripe.webhooks.constructEvent(rawBody, sigHeader, endpointSecret);
-    req.event = event;
-    return next();
+    event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
   } catch (err) {
-    console.error('Webhook signature verification failed:', err.message);
-    return res.status(400).send('Webhook signature verification failed');
+    response.status(400).send(`Webhook Error: ${err.message}`);
+    return;
   }
-};
+  switch (event.type) {
+    case 'customer.subscription.created':
+      console.log('Subscription created:', event);
+
+      const subscriptionId = event.data.object.id;
+
+      await updateUserSubscription(subscriptionId);
+
+      break;
+
+    case 'checkout.session.completed':
+      console.log('Checkout session completed:', event);
+
+      const sessionId = event.data.object.id;
+
+      await updatePaymentStatus(sessionId, 'success');
+
+      break;
+
+    case 'invoice.payment_succeeded':
+      console.log('Invoice payment succeeded:', event);
+
+      const invoiceId = event.data.object.id;
+
+      await updatePaymentStatus(invoiceId, 'success');
+
+      break;
+
+    case 'invoice.payment_failed':
+      console.log('Invoice payment failed:', event);
+
+      const failedInvoiceId = event.data.object.id;
+      await updatePaymentStatus(failedInvoiceId, 'failed');
+
+      break;
 
 
-app.post('/api/webhooks', verifyWebhookSignature, express.raw({ type: 'application/json' }), (req, res) => {
-  const event = JSON.parse(req.rawBody); 
-  handleWebhookEvent(event);
-  res.status(200).end();
+    default:
+      console.log('Unhandled event type:', event.type);
+  }
+  response.send();  
 });
-
 
 
 app.listen(process.env.PORT || port, () =>
