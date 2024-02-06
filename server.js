@@ -3,9 +3,7 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
-// const rateLimit = require('express-rate-limit')
 const sanitize = require('express-mongo-sanitize');
-const multer = require('multer');
 const app = express();
 const port = 6002;
 
@@ -43,13 +41,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(helmet());
 app.use(sanitize());
 
-// const limiter = rateLimit({
-//   windowMs: 40 * 60 * 1000,
-//   max: 1000,
-//   message: 'Too many requests',
-// })
-
-// app.use('/api', limiter)
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 app.use('/api/', authRouter);
 app.use('/api/users', userRouter);
@@ -77,7 +69,6 @@ const verifyWebhookSignature = async (req, res, next) => {
     return res.status(400).send('Webhook signature verification failed');
   }
 };
-
 
 app.post('/webhook', verifyWebhookSignature, (req, res) => {
   const payload = req.body;
