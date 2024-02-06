@@ -149,47 +149,47 @@ const paymentSuccess = async (req, res) => {
     }
 }
 
-const handleWebhookEvent = async (payload) => {
+const handleWebhookEvent = async (event) => {
     try {
-      switch (payload.type) {
+      switch (event.type) {
         case 'customer.subscription.created':
-          console.log('Subscription created:', payload);
+          console.log('Subscription created:', event);
   
-        //   const subscriptionId = payload.data.object.id;
+          const subscriptionId = event.data.object.id;
   
-        //   await updateUserSubscription(subscriptionId);
+          await updateUserSubscription(subscriptionId);
   
           break;
   
         case 'checkout.session.completed':
-          console.log('Checkout session completed:', payload);
+          console.log('Checkout session completed:', event);
   
-        //   const sessionId = payload.data.object.id;
+          const sessionId = event.data.object.id;
   
-        //   await updatePaymentStatus(sessionId, 'success');
+          await updatePaymentStatus(sessionId, 'success');
   
           break;
   
         case 'invoice.payment_succeeded':
-          console.log('Invoice payment succeeded:', payload);
+          console.log('Invoice payment succeeded:', event);
   
-        //   const invoiceId = payload.data.object.id;
+          const invoiceId = event.data.object.id;
 
-        //   await updatePaymentStatus(invoiceId, 'success');
+          await updatePaymentStatus(invoiceId, 'success');
   
           break;
   
         case 'invoice.payment_failed':
-          console.log('Invoice payment failed:', payload);
+          console.log('Invoice payment failed:', event);
   
-        //   const failedInvoiceId = payload.data.object.id;
-        //   await updatePaymentStatus(failedInvoiceId, 'failed');
+          const failedInvoiceId = event.data.object.id;
+          await updatePaymentStatus(failedInvoiceId, 'failed');
   
           break;
   
   
         default:
-          console.log('Unhandled event type:', payload.type);
+          console.log('Unhandled event type:', event.type);
       }
     } catch (error) {
       console.error('Error handling webhook event:', error);
