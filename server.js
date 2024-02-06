@@ -28,7 +28,6 @@ dotenv.config();
 
 const admin = require('firebase-admin');
 const serviceAccount = require('./serviceAccountKey.json');
-const verifyWebhookSignature = require('./middleware/stripeWebhook');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -66,6 +65,19 @@ app.use('/api/subscriptions', subscriptionRouter);
 app.use('/api/account', accountRouter);
 app.use('/apple', appleRouter);
 app.use('/api/checkout', paymentRouter);
+
+const verifyWebhookSignature = async (req, res, next) => {
+  const sigHeader = req.headers['stripe-signature'];
+  try {
+    const event = stripe.webhooks.constructEvent(req.rawBody, sigHeader, process.env.STRIPE_WEBHOOK_SECRET);
+    req.event = event;
+    next();
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err.message);
+    return res.status(400).send('Webhook signature verification failed');
+  }
+};
+
 
 app.post('/webhook', verifyWebhookSignature, (req, res) => {
   const payload = req.body;
