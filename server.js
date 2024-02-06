@@ -78,12 +78,11 @@ const verifyWebhookSignature = (req, res, next) => {
 
 
 app.post('/api/webhooks', verifyWebhookSignature, express.raw({ type: 'application/json' }), (req, res) => {
-  const event = req.body;
-  
-    handleWebhookEvent(event);
-    response.status(200).end(); 
-  } 
-);
+  const event = JSON.parse(req.rawBody); 
+  handleWebhookEvent(event);
+  res.status(200).end();
+});
+
 
 
 app.listen(process.env.PORT || port, () =>
