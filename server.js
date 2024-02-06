@@ -59,34 +59,31 @@ app.use('/api/account', accountRouter);
 app.use('/apple', appleRouter);
 app.use('/api/checkout', paymentRouter);
 
-// const verifyWebhookSignature = (req, res, next) => {
-//   const sigHeader = req.headers['stripe-signature'];
-//   const rawBody = req.rawBody;
-
-//   try {
-//     const event = stripe.webhooks.constructEvent(rawBody, sigHeader, process.env.STRIPE_WEBHOOK_SECRET);
-//     req.event = event;
-//     return next();
-//   } catch (err) {
-//     console.error('Webhook signature verification failed:', err.message);
-//     return res.status(400).send('Webhook signature verification failed');
-//   }
-// };
-
 endpointSecret = "whsec_AeqnnLKiS8h2BfCikqxfcplSBqjP2Gwl"
 
-app.use('/api/webhooks', express.raw({ type: 'application/json' }), (request, response) => {
-  const sig = request.headers['stripe-signature'];
+
+const verifyWebhookSignature = (req, res, next) => {
+  const sigHeader = req.headers['stripe-signature'];
+  const rawBody = req.rawBody;
 
   try {
-    const event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
-    handleWebhookEvent(event);
-    response.status(200).end(); // Acknowledge the webhook
+    const event = stripe.webhooks.constructEvent(rawBody, sigHeader, endpointSecret);
+    req.event = event;
+    return next();
   } catch (err) {
-    console.error(`Webhook Error: ${err.message}`);
-    response.status(400).send(`Webhook Error: ${err.message}`);
+    console.error('Webhook signature verification failed:', err.message);
+    return res.status(400).send('Webhook signature verification failed');
   }
-});
+};
+
+
+app.post('/api/webhooks', verifyWebhookSignature, express.raw({ type: 'application/json' }), (req, res) => {
+  const event = req.body;
+  
+    handleWebhookEvent(event);
+    response.status(200).end(); 
+  } 
+);
 
 
 app.listen(process.env.PORT || port, () =>
