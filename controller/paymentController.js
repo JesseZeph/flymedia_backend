@@ -155,35 +155,35 @@ const handleWebhookEvent = async (payload) => {
         case 'customer.subscription.created':
           console.log('Subscription created:', payload);
   
-          const subscriptionId = payload.data.object.id;
+        //   const subscriptionId = payload.data.object.id;
   
-          await updateUserSubscription(subscriptionId);
+        //   await updateUserSubscription(subscriptionId);
   
           break;
   
         case 'checkout.session.completed':
           console.log('Checkout session completed:', payload);
   
-          const sessionId = payload.data.object.id;
+        //   const sessionId = payload.data.object.id;
   
-          await updatePaymentStatus(sessionId, 'success');
+        //   await updatePaymentStatus(sessionId, 'success');
   
           break;
   
         case 'invoice.payment_succeeded':
           console.log('Invoice payment succeeded:', payload);
   
-          const invoiceId = payload.data.object.id;
+        //   const invoiceId = payload.data.object.id;
 
-          await updatePaymentStatus(invoiceId, 'success');
+        //   await updatePaymentStatus(invoiceId, 'success');
   
           break;
   
         case 'invoice.payment_failed':
           console.log('Invoice payment failed:', payload);
   
-          const failedInvoiceId = payload.data.object.id;
-          await updatePaymentStatus(failedInvoiceId, 'failed');
+        //   const failedInvoiceId = payload.data.object.id;
+        //   await updatePaymentStatus(failedInvoiceId, 'failed');
   
           break;
   
