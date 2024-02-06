@@ -28,6 +28,7 @@ dotenv.config();
 
 const admin = require('firebase-admin');
 const serviceAccount = require('./serviceAccountKey.json');
+const verifyWebhookSignature = require('./middleware/stripeWebhook');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -66,7 +67,7 @@ app.use('/api/account', accountRouter);
 app.use('/apple', appleRouter);
 app.use('/api/checkout', paymentRouter);
 
-app.post('/webhook', (req, res) => {
+app.post('/webhook', verifyWebhookSignature, (req, res) => {
   const payload = req.body;
 
   handleWebhookEvent(payload);
