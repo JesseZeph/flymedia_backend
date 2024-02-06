@@ -72,7 +72,7 @@ const verifyWebhookSignature = (req, res, next) => {
   }
 };
 
-app.use('/api/webhooks', express.raw({ type: 'application/json' }), verifyWebhookSignature, (req, res) => {
+app.post('/api/webhooks', express.raw({ type: 'application/json' }), verifyWebhookSignature, (req, res) => {
   const payload = req.body;
 
   handleWebhookEvent(payload);
