@@ -78,13 +78,13 @@ endpointSecret = "whsec_AeqnnLKiS8h2BfCikqxfcplSBqjP2Gwl"
 app.use('/api/webhooks', express.raw({ type: 'application/json' }), (request, response) => {
   const sig = request.headers['stripe-signature'];
 
-  let event;
-
   try {
-    event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+    const event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+    handleWebhookEvent(event);
+    response.status(200).end(); // Acknowledge the webhook
   } catch (err) {
+    console.error(`Webhook Error: ${err.message}`);
     response.status(400).send(`Webhook Error: ${err.message}`);
-    return;
   }
 });
 
