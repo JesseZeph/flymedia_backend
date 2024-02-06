@@ -75,7 +75,7 @@ app.use('/api/checkout', paymentRouter);
 
 endpointSecret = "whsec_AeqnnLKiS8h2BfCikqxfcplSBqjP2Gwl"
 
-app.post('/api/webhook', express.raw({ type: 'application/json' }), (request, response) => {
+app.post('/api/webhooks', express.raw({ type: 'application/json' }), (request, response) => {
   const sig = request.headers['stripe-signature'];
 
   let event;
