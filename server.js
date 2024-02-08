@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const sanitize = require('express-mongo-sanitize');
-const Stripe = require('stripe');
 
 const app = express();
 const port = 6002;
@@ -23,6 +22,7 @@ const appleRouter = require('./routes/appleRouter');
 const subscriptionRouter = require('./routes/subscriptionRoutes');
 const accountRouter = require('./routes/accountRouter');
 const paymentRouter = require('./routes/paymentRouter');
+const campaignPaymentRouter = require('./routes/campaignPaymentRouter')
 
 dotenv.config();
 
@@ -37,20 +37,6 @@ mongoose
   .connect(process.env.MONGO_URL)
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.error('MongoDB connection error:', err));
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-
-
-webhookSecret = "whsec_AeqnnLKiS8h2BfCikqxfcplSBqjP2Gwl";
-
-app.use((req, res, next) => {
-  if (req.originalUrl === '/api/webhooks') {
-    next();
-  } else {
-    express.json()(req, res, next);
-  }
-});
 
 
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -72,39 +58,7 @@ app.use('/api/subscriptions', subscriptionRouter);
 app.use('/api/account', accountRouter);
 app.use('/apple', appleRouter);
 app.use('/api/checkout', paymentRouter);
-
-app.post(
-  '/api/webhooks',
-  express.raw({ type: 'application/json' }),
-  (req, res) => {
-    const sig = req.headers['stripe-signature'];
-
-    let event;
-
-    try {
-      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-    } catch (err) {
-      console.log(`❌ Error message: ${err.message}`);
-      res.status(400).send(`Webhook Error: ${err.message}`);
-      return;
-    }
-
-    console.log('✅ Success:', event.id);
-
-    if (event.type === 'invoice.payment_succeeded') {
-      const stripeObject = event.data.object;
-      console.log(`💰 Invoice payment succeeded: ${stripeObject.status}`);
-    } else if (event.type === 'charge.succeeded') {
-      const charge = event.data.object;
-      console.log(`💵 Charge id: ${charge.id}`);
-    } else {
-      console.warn(`🤷‍♀️ Unhandled event type: ${event.type}`);
-    }
-
-    res.json({ received: true });
-  }
-);
-
+app.use('/api/campaignPayment', campaignPaymentRouter);
 
 
 app.listen(process.env.PORT || port, () =>
