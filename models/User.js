@@ -16,10 +16,10 @@ const UserSchema = new mongoose.Schema(
       default: 'Client',
       enum: ['Client', 'Influencer', 'Admin', 'SuperAdmin'],
     },
-    subscriptions: [
+    payment: [
       {
         type: mongoose.Types.ObjectId,
-        ref: 'Subscription',
+        ref: 'Payment',
       },
     ],
     sessionId: {

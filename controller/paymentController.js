@@ -53,12 +53,11 @@ const paymentCheckout = async (req, res) => {
             user: user._id,
             sessionId: session.id,
         })
-        console.log(session.id);
         await payment.save();
         return res.status(200).json({
             status: true,
             message: 'Processing payment',
-            data: { redirectUrl: session.url },
+            data: { redirectUrl: session.url, sessionId: session.id},
         });
         
     } catch (error) {
@@ -101,7 +100,7 @@ const paymentSuccess = async (req, res) => {
                 const durationInSeconds = subscription.current_period_end - subscription.current_period_start;
                 const durationInDays = moment.duration(durationInSeconds, 'seconds').asDays();
 
-                const newSubscription = new Payment({
+                const newPayment = new Payment({
                     user: user._id,
                     planId: planId,
                     sessionId: session.id,
@@ -111,17 +110,17 @@ const paymentSuccess = async (req, res) => {
                     planDuration: durationInDays
                 });
 
-                const savedSubscription = await newSubscription.save();
+                const paymentMade = await newPayment.save();
 
                 if (user.userType === 'Client') {
-                    user.subscriptions.push(savedSubscription._id);
+                    user.payment.push(paymentMade._id);
                     await user.save();
                 }
 
                 return res.status(200).json({
                     status: true,
                     message: "Payment Successful",
-                    data: savedSubscription,
+                    data: paymentMade,
                 });
             } catch (error) {
                 console.error('Error getting subscription', error);
@@ -149,56 +148,8 @@ const paymentSuccess = async (req, res) => {
     }
 }
 
-const handleWebhookEvent = async (event) => {
-    try {
-      switch (event.type) {
-        case 'customer.subscription.created':
-          console.log('Subscription created:', event);
-  
-          const subscriptionId = event.data.object.id;
-  
-          await updateUserSubscription(subscriptionId);
-  
-          break;
-  
-        case 'checkout.session.completed':
-          console.log('Checkout session completed:', event);
-  
-          const sessionId = event.data.object.id;
-  
-          await updatePaymentStatus(sessionId, 'success');
-  
-          break;
-  
-        case 'invoice.payment_succeeded':
-          console.log('Invoice payment succeeded:', event);
-  
-          const invoiceId = event.data.object.id;
-
-          await updatePaymentStatus(invoiceId, 'success');
-  
-          break;
-  
-        case 'invoice.payment_failed':
-          console.log('Invoice payment failed:', event);
-  
-          const failedInvoiceId = event.data.object.id;
-          await updatePaymentStatus(failedInvoiceId, 'failed');
-  
-          break;
-  
-  
-        default:
-          console.log('Unhandled event type:', event.type);
-      }
-    } catch (error) {
-      console.error('Error handling webhook event:', error);
-    }
-  };
-
 
 module.exports = {
     paymentCheckout,
     paymentSuccess,
-    handleWebhookEvent
 }

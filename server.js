@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const sanitize = require('express-mongo-sanitize');
+
 const app = express();
 const port = 6002;
 
@@ -21,6 +22,7 @@ const appleRouter = require('./routes/appleRouter');
 const subscriptionRouter = require('./routes/subscriptionRoutes');
 const accountRouter = require('./routes/accountRouter');
 const paymentRouter = require('./routes/paymentRouter');
+const campaignPaymentRouter = require('./routes/campaignPaymentRouter')
 
 dotenv.config();
 
@@ -36,13 +38,11 @@ mongoose
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
+
 app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.json({ verify: (req, res, buf) => { req.rawBody = buf; } }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(helmet());
 app.use(sanitize());
-
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 app.use('/api/', authRouter);
 app.use('/api/users', userRouter);
@@ -58,33 +58,9 @@ app.use('/api/subscriptions', subscriptionRouter);
 app.use('/api/account', accountRouter);
 app.use('/apple', appleRouter);
 app.use('/api/checkout', paymentRouter);
-
-endpointSecret = "whsec_AeqnnLKiS8h2BfCikqxfcplSBqjP2Gwl"
-
-
-const verifyWebhookSignature = (req, res, next) => {
-  const sigHeader = req.headers['stripe-signature'];
-  const rawBody = req.rawBody;
-
-  try {
-    const event = stripe.webhooks.constructEvent(rawBody, sigHeader, endpointSecret);
-    req.event = event;
-    return next();
-  } catch (err) {
-    console.error('Webhook signature verification failed:', err.message);
-    return res.status(400).send('Webhook signature verification failed');
-  }
-};
-
-
-app.post('/api/webhooks', verifyWebhookSignature, express.raw({ type: 'application/json' }), (req, res) => {
-  const event = JSON.parse(req.rawBody); 
-  handleWebhookEvent(event);
-  res.status(200).end();
-});
-
+app.use('/api/campaignPayment', campaignPaymentRouter);
 
 
 app.listen(process.env.PORT || port, () =>
-  console.log(`Flymedia is listening to port ${process.env.PORT}!`)
+  console.log(`Flymedia is listening to port ${process.env.PORT || port}!`)
 );
