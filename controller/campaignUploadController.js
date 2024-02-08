@@ -32,9 +32,11 @@ module.exports = {
         'companyDescription',
         'jobTitle',
         'country',
-        'rateFrom',
-        'rateTo',
+        // 'rateFrom',
+        'rate',
         'viewsRequired',
+        'maxApplicants',
+        'minFollowers',
         'jobDescription',
       ];
       const missingFields = requiredFields.filter((field) => !others[field]);
@@ -52,8 +54,10 @@ module.exports = {
         imageUrl: cloudinaryResult.secure_url,
         jobTitle: req.body.jobTitle,
         country: req.body.country,
-        rateFrom: req.body.rateFrom,
-        rateTo: req.body.rateTo,
+        // rateFrom: req.body.rateFrom,
+        rate: req.body.rate,
+        maxApplicants: req.body.maxApplicants,
+        minFollowers: req.body.minFollowers,
         viewsRequired: req.body.viewsRequired,
         jobDescription: req.body.jobDescription,
       });
@@ -104,7 +108,10 @@ module.exports = {
   },
   getAllCampaignImageAndDesc: async (req, res) => {
     try {
-      const logoWithDesc = await CampaignUpload.find().exec();
+      const logoWithDesc = await CampaignUpload.find({
+        assigned: null,
+        applicationsFull: false,
+      }).exec();
 
       if (logoWithDesc.length > 0) {
         return res.status(200).json(logoWithDesc);

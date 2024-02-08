@@ -2,58 +2,67 @@ const InfluencerApplication = require('../models/influencerApplication');
 const CampaignUpload = require('../models/CampaignUpload');
 const InfluencerProfile = require('../models/InfluencerProfile');
 
+async function updateCampaign(campaignId) {
+  let campaign = await CampaignUpload.findById();
+  campaign.numberOfApplicants += 1;
+  if (campaign.maxApplicants == campaign.numberOfApplicants) {
+    campaign.applicationsFull = true;
+  }
+  await campaign.save();
+}
 module.exports = {
   applyForCampaign: async (req, res) => {
     try {
       const userId = req.body.influencerId;
       const campaign_id = req.body.campaignId;
 
-      const campaign = await InfluencerApplication.findOne({
+      const application = await InfluencerApplication.findOne({
         campaignId: campaign_id,
       }).exec();
-      if (campaign) {
-        const applied = campaign.influencers.includes(userId);
+      // if (application) {
+      // }
+
+      // const influencerVerified = await InfluencerProfile.findById(
+      //   userId
+      // ).exec();
+
+      // if (!influencerVerified) {
+      //   return res.status(404).json({
+      //     success: false,
+      //     message: 'This user profile not found.',
+      //   });
+      // }
+
+      // if (
+      //   !influencerVerified.imageURL ||
+      //   !influencerVerified.firstAndLastName ||
+      //   !influencerVerified.location ||
+      //   !influencerVerified.noOfTikTokFollowers ||
+      //   !influencerVerified.noOfTikTokLikes ||
+      //   !influencerVerified.niches ||
+      //   !influencerVerified.bio ||
+      //   !influencerVerified.email ||
+      //   !influencerVerified.tikTokLink
+      // ) {
+      //   return res.status(400).json({
+      //     success: false,
+      //     message:
+      //       'Complete your influencer profile before applying for campaigns',
+      //   });
+      // }
+
+      if (application) {
+        const applied = application.influencers.includes(userId);
         if (applied) {
           return res.status(200).json({
             success: false,
             message: 'You already applied for this campaign',
           });
         }
-      }
+        application.influencers.push(userId);
 
-      const influencerVerified = await InfluencerProfile.findById(
-        userId
-      ).exec();
-
-      if (!influencerVerified) {
-        return res.status(404).json({
-          success: false,
-          message: 'This user profile not found.',
-        });
-      }
-
-      if (
-        !influencerVerified.imageURL ||
-        !influencerVerified.firstAndLastName ||
-        !influencerVerified.location ||
-        !influencerVerified.noOfTikTokFollowers ||
-        !influencerVerified.noOfTikTokLikes ||
-        !influencerVerified.niches ||
-        !influencerVerified.bio ||
-        !influencerVerified.email ||
-        !influencerVerified.tikTokLink
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            'Complete your influencer profile before applying for campaigns',
-        });
-      }
-
-      if (campaign) {
-        campaign.influencers.push(userId);
-
-        await campaign.save();
+        await application.save();
+        updateCampaign(campaign_id);
       } else {
         const newApplication = new InfluencerApplication({
           campaignId: campaign_id,
