@@ -3,7 +3,7 @@ const CampaignUpload = require('../models/CampaignUpload');
 const InfluencerProfile = require('../models/InfluencerProfile');
 
 async function updateCampaign(campaignId) {
-  let campaign = await CampaignUpload.findById();
+  let campaign = await CampaignUpload.findById(campaignId);
   campaign.numberOfApplicants += 1;
   if (campaign.maxApplicants == campaign.numberOfApplicants) {
     campaign.applicationsFull = true;
@@ -62,17 +62,16 @@ module.exports = {
         application.influencers.push(userId);
 
         await application.save();
-        updateCampaign(campaign_id);
       } else {
         const newApplication = new InfluencerApplication({
           campaignId: campaign_id,
         });
         newApplication.influencers.push(userId);
-
         await newApplication.save();
       }
+      updateCampaign(campaign_id);
 
-      res
+      return res
         .status(201)
         .json({ success: true, message: 'Application submitted successfully' });
     } catch (error) {
