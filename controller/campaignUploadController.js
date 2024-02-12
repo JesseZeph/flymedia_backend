@@ -21,6 +21,12 @@ module.exports = {
           message: 'Company not verified. Please wait for admin approval.',
         });
       }
+      if (company.campaignsInMonth >= req.body.max_campaigns) {
+        return res.status(406).json({
+          success: false,
+          message: 'Maximum allowed campaigns reached',
+        });
+      }
       if (!req.file) {
         return res
           .status(400)
@@ -70,6 +76,8 @@ module.exports = {
           imageUrl: cloudinaryResult.secure_url,
         },
       });
+      company.campaignsInMonth += 1;
+      await company.save();
     } catch (error) {
       console.error({ error });
       return res.status(500).json({
