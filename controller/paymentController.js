@@ -5,8 +5,6 @@ const User = require('../models/User');
 const moment = require('moment');
 
 
-const [basic, pro, premium] = ['price_1Og4JxFVGuxznuspBXxtw1Jm', 'price_1Og4KtFVGuxznuspmVEFRuRm', 'price_1Og4MHFVGuxznuspRxJ8HnES']
-
 
 const createStripSession = async (plan) => {
     try {
@@ -21,45 +19,36 @@ const createStripSession = async (plan) => {
             ],
             success_url: 'http://localhost:3000/api/checkout/success',
             cancel_url: 'http://localhost:3000/api/checkout/cancel'
-        }); return session;
-
+        });
+        return session;
     } catch (error) {
         console.log("Error creating Stripe Checkout Session", error);
         throw new Error('Failed to create Stripe session');
-
-
     }
-
 }
 
 const paymentCheckout = async (req, res) => {
     const { plan, userId } = req.body;
 
-    let planId = null;
-    if (plan == 99) planId = basic;
-    else if (plan == 299) planId = pro;
-    else if (plan == 499) planId = premium;
-
     try {
-
         const session = await createStripSession(plan);
         const user = await User.findOne({ _id: userId });
 
         if (!user) {
-            return res.status(404).json({ error: 'User not found' })
+            return res.status(404).json({ error: 'User not found' });
         }
 
         const payment = new Payment({
             user: user._id,
             sessionId: session.id,
-        })
+        });
         await payment.save();
         return res.status(200).json({
             status: true,
             message: 'Processing payment',
-            data: { redirectUrl: session.url, sessionId: session.id},
+            data: { redirectUrl: session.url, sessionId: session.id },
         });
-        
+
     } catch (error) {
         console.error({ error });
         return res.status(500).json({
@@ -67,10 +56,9 @@ const paymentCheckout = async (req, res) => {
             message: 'Error with processing payment',
             data: null,
         });
-
     }
-
 }
+
 
 const paymentSuccess = async (req, res) => {
     const { sessionId, userId } = req.body;
@@ -146,10 +134,52 @@ const paymentSuccess = async (req, res) => {
             data: null,
         });
     }
+
+    
 }
+
+// paymentController.js
+
+const fetchPlans = async (req, res) => {
+    try {
+        const stripePrices = await stripe.prices.list({ active: true, expand: ['data.product'] });
+
+        const subscriptionPlans = stripePrices.data
+            .filter(price => price.product && price.product.name !== "Campaign Payment")
+            .map((price) => ({
+                id: price.id,
+                name: price.product.name,
+                price: price.unit_amount / 100,
+            }));
+
+        // Update SubscriptionModel with the fetched plans
+        for (const plan of subscriptionPlans) {
+            await SubscriptionModel.findOneAndUpdate(
+                { name: plan.name },
+                { price: plan.price },
+                { upsert: true }
+            );
+        }
+
+        return res.status(200).json({
+            status: true,
+            message: 'Subscription plans fetched and updated successfully',
+            data: { plans: subscriptionPlans },
+        });
+    } catch (error) {
+        console.error('Error fetching plans from Stripe', error);
+        return res.status(500).json({
+            status: false,
+            message: 'Error fetching plans from Stripe',
+            data: null,
+        });
+    }
+};
+
 
 
 module.exports = {
     paymentCheckout,
     paymentSuccess,
+    fetchPlans
 }
