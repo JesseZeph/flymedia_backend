@@ -14,7 +14,7 @@ const fetchUserCampaigns = async (req, res) => {
         .populate({
           path: 'campaign',
           populate: { path: 'company', select: 'companyName -_id' },
-          select: '_id imageUrl jobTitle country jobDescription rateTo company',
+          select: '_id imageUrl jobTitle country jobDescription rate company',
         })
         .exec();
       return res.status(200).json({

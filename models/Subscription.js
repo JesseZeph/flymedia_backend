@@ -11,6 +11,8 @@ const SubscriptionSchema = new schema({
     type: String,
     required: true,
   },
+  applicants_number: { type: Number, default: 0 },
+  campaigns_number: { type: Number, default: 0 },
   features: {
     type: String,
     required: true,

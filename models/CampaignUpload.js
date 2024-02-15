@@ -21,8 +21,11 @@ const companyDetailsSchema = new mongoose.Schema({
   },
   jobTitle: { type: String, required: true },
   country: { type: String, required: true },
-  rateFrom: { type: String, required: true },
-  rateTo: { type: String, required: true },
+  // rateFrom: { type: String, required: true },
+  rate: { type: String, required: true },
+  maxApplicants: { type: Number, required: true },
+  minFollowers: { type: Number, required: true },
+  numberOfApplicants: { type: Number, default: 0 },
   viewsRequired: {
     type: String,
     required: true,
@@ -34,6 +37,7 @@ const companyDetailsSchema = new mongoose.Schema({
       '1m and above',
     ],
   },
+  applicationsFull: { type: Boolean, default: false },
   jobDescription: { type: String, required: true },
   assigned: {
     type: mongoose.Schema.Types.ObjectId,
