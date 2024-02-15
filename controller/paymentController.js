@@ -138,44 +138,34 @@ const paymentSuccess = async (req, res) => {
     
 }
 
-// paymentController.js
 
 const fetchPlans = async (req, res) => {
     try {
-        const stripePrices = await stripe.prices.list({ active: true, expand: ['data.product'] });
-
-        const subscriptionPlans = stripePrices.data
-            .filter(price => price.product && price.product.name !== "Campaign Payment")
-            .map((price) => ({
-                id: price.id,
-                name: price.product.name,
-                price: price.unit_amount / 100,
-            }));
-
-        // Update SubscriptionModel with the fetched plans
-        for (const plan of subscriptionPlans) {
-            await SubscriptionModel.findOneAndUpdate(
-                { name: plan.name },
-                { price: plan.price },
-                { upsert: true }
-            );
-        }
-
-        return res.status(200).json({
-            status: true,
-            message: 'Subscription plans fetched and updated successfully',
-            data: { plans: subscriptionPlans },
-        });
+      const stripePrices = await stripe.prices.list({ active: true, expand: ['data.product'] });
+  
+      // Filter out the "Campaign Payment" plan
+      const subscriptionPlans = stripePrices.data
+        .filter(price => price.product && price.product.name !== "Campaign Payment")
+        .map((price) => ({
+          id: price.id,
+          name: price.product.name,
+          price: price.unit_amount / 100, 
+        }));
+  
+      return res.status(200).json({
+        status: true,
+        message: 'Subscription plans fetched successfully',
+        data: { plans: subscriptionPlans },
+      });
     } catch (error) {
-        console.error('Error fetching plans from Stripe', error);
-        return res.status(500).json({
-            status: false,
-            message: 'Error fetching plans from Stripe',
-            data: null,
-        });
+      console.error('Error fetching plans from Stripe', error);
+      return res.status(500).json({
+        status: false,
+        message: 'Error fetching plans from Stripe',
+        data: null,
+      });
     }
-};
-
+  };
 
 
 module.exports = {
