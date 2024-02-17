@@ -22,6 +22,10 @@ const SubscriptionSchema = new schema({
     required: false,
     default: 'ffffff',
   },
+  description: {
+    type: String,
+    required: false,
+  },
 });
 
 const SubscriptionModel = mongoose.model('Subscription', SubscriptionSchema);

@@ -42,6 +42,7 @@ const createNewSubsriptions = async (req, res) => {
       name: name,
       color_code: color || 'ffffff',
       features: features,
+      description: description,
     });
 
     return res.status(200).json({
