@@ -9,7 +9,7 @@ const CampaignPaymentSchema = new mongoose.Schema({
     campaign: {
         type: mongoose.Types.ObjectId,
         ref: 'CampaignDetails',
-        required: false,
+        required: true,
     },
     sessionId: String,
     paymentStatus: {
