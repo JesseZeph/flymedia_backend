@@ -16,16 +16,16 @@ const UserSchema = new mongoose.Schema(
       default: 'Client',
       enum: ['Client', 'Influencer', 'Admin', 'SuperAdmin'],
     },
-    payment: [
-      {
-        type: mongoose.Types.ObjectId,
-        ref: 'Payment',
-      },
-    ],
-    sessionId: {
-      type: String,
-      default: null,
-    },
+    // payment: [
+    //   {
+    //     type: mongoose.Types.ObjectId,
+    //     ref: 'Payment',
+    //   },
+    // ],
+    // sessionId: {
+    //   type: String,
+    //   default: null,
+    // },
     profile: {
       type: String,
       require: true,
