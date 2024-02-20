@@ -115,11 +115,17 @@ module.exports = {
     }
   },
   getAllCampaignImageAndDesc: async (req, res) => {
+    const pageNumber = req.query.page;
+    const skipNumber = (pageNumber - 1) * 20;
     try {
-      const logoWithDesc = await CampaignUpload.find({
-        assigned: null,
-        applicationsFull: false,
-      }).exec();
+      const logoWithDesc = await CampaignUpload.find(
+        {
+          assigned: null,
+          applicationsFull: false,
+        },
+        null,
+        { skip: skipNumber, limit: 20, sort: '-updatedAt' }
+      ).exec();
 
       if (logoWithDesc.length > 0) {
         return res.status(200).json(logoWithDesc);
