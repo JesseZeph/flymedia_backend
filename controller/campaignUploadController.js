@@ -118,14 +118,13 @@ module.exports = {
     const pageNumber = req.query.page;
     const skipNumber = (pageNumber - 1) * 20;
     try {
-      const logoWithDesc = await CampaignUpload.find(
-        {
-          assigned: null,
-          applicationsFull: false,
-        },
+      const logoWithDesc = await CampaignUpload.find({
+        assigned: null,
+        applicationsFull: false,
+      },
         null,
-        { skip: skipNumber, limit: 20, sort: '-updatedAt' }
-      ).exec();
+        { skip: skipNumber, limit: 20, sort: '-updatedAt' 
+      }).exec();
 
       if (logoWithDesc.length > 0) {
         return res.status(200).json(logoWithDesc);
@@ -162,6 +161,7 @@ module.exports = {
       });
     }
   },
+
   searchCampaign: async (req, res) => {
     try {
       const results = await CampaignUpload.aggregate([
@@ -184,6 +184,8 @@ module.exports = {
       res.status(500).json(error);
     }
   },
+
+
   assignInfluencer: async (req, res) => {
     const details = req.body;
 
