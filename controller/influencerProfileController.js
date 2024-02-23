@@ -273,7 +273,11 @@ module.exports = {
       const influencerProfiles = await InfluencerProfile.find()
         .skip(skipNumber)
         .limit(pageSize)
-        .sort('-updatedAt');
+        .sort('-updatedAt')
+        .populate({
+          path: 'niches',
+          select: 'name', 
+        });;
   
       if (!influencerProfiles || influencerProfiles.length === 0) {
         return res.status(404).json({
