@@ -24,7 +24,7 @@ const companyDetailsSchema = new mongoose.Schema(
     country: { type: String, required: true },
     // rateFrom: { type: String, required: true },
     rate: { type: String, required: true },
-    maxApplicants: { type: Number, required: true },
+    // maxApplicants: { type: Number, required: true },
     minFollowers: { type: Number, required: true },
     numberOfApplicants: { type: Number, default: 0 },
     viewsRequired: {

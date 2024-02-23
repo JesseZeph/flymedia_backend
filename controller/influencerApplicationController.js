@@ -69,7 +69,7 @@ module.exports = {
         newApplication.influencers.push(userId);
         await newApplication.save();
       }
-      updateCampaign(campaign_id);
+      // updateCampaign(campaign_id);
 
       return res
         .status(201)
