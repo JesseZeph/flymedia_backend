@@ -265,15 +265,28 @@ module.exports = {
   },
 
   allInfluencers: async (req, res) => {
+    const pageNumber = parseInt(req.query.page) || 1;
+    const pageSize = 20;
+    const skipNumber = (pageNumber - 1) * pageSize;
+  
     try {
-      const influencerProfiles = await InfluencerProfile.find();
-
+      const influencerProfiles = await InfluencerProfile.find()
+        .skip(skipNumber)
+        .limit(pageSize)
+        .sort('-updatedAt')
+        .populate({
+          path: 'niches',
+          select: 'name', 
+        });;
+  
       if (!influencerProfiles || influencerProfiles.length === 0) {
-        return res
-          .status(404)
-          .json({ success: false, message: 'No influencer profiles found' });
+        return res.status(404).json({
+          success: false,
+          message: 'No influencer profiles found',
+        });
       }
 
+     
       const simplifiedProfiles = influencerProfiles.map((profile) => ({
         _id: profile._id,
         imageURL: profile.imageURL,
@@ -285,9 +298,13 @@ module.exports = {
         noOfTikTokLikes: profile.noOfTikTokLikes,
         postsViews: profile.postsViews,
         bio: profile.bio,
+        niches: profile.niches.map((niche) => ({
+          _id: niche._id,
+          name: niche.name,
+        })),
         userId: profile.userId,
       }));
-
+  
       res.status(200).json(simplifiedProfiles);
     } catch (error) {
       console.log(error);
@@ -296,5 +313,5 @@ module.exports = {
         message: 'Error retrieving influencer profiles',
       });
     }
-  },
+  },  
 };
