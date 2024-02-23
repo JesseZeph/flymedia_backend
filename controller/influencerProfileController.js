@@ -281,7 +281,8 @@ module.exports = {
           message: 'No influencer profiles found',
         });
       }
-  
+
+     
       const simplifiedProfiles = influencerProfiles.map((profile) => ({
         _id: profile._id,
         imageURL: profile.imageURL,
@@ -293,6 +294,7 @@ module.exports = {
         noOfTikTokLikes: profile.noOfTikTokLikes,
         postsViews: profile.postsViews,
         bio: profile.bio,
+        niches: profile.niches,
         userId: profile.userId,
       }));
   
