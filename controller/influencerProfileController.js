@@ -294,7 +294,10 @@ module.exports = {
         noOfTikTokLikes: profile.noOfTikTokLikes,
         postsViews: profile.postsViews,
         bio: profile.bio,
-        niches: profile.niches,
+        niches: profile.niches.map((niche) => ({
+          _id: niche._id,
+          name: niche.name,
+        })),
         userId: profile.userId,
       }));
   
