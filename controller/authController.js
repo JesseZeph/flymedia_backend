@@ -214,15 +214,13 @@ module.exports = {
       res.status(200).json({
         ...others,
         userToken,
-        userType: [user.userType], // list of userTypes
+        userType,
         company: userCompany ? userCompany : {},
       });
     } catch (error) {
       res.status(500).json({ status: false, message: error.message });
     }
   },
-
-  
 
   verifyUserEmail: async (req, res) => {
     try {
