@@ -214,6 +214,7 @@ module.exports = {
       res.status(200).json({
         ...others,
         userToken,
+        userType,
         company: userCompany ? userCompany : {},
       });
     } catch (error) {
