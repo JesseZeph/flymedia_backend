@@ -214,7 +214,7 @@ module.exports = {
       res.status(200).json({
         ...others,
         userToken,
-        userType: [user.userType],
+        userType: [user.userType], // list of userTypes
         company: userCompany ? userCompany : {},
       });
     } catch (error) {
