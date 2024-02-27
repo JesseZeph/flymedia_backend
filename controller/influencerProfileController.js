@@ -1,9 +1,89 @@
 const cloudinary = require('../utils/cloudinary');
 const InfluencerProfile = require('../models/InfluencerProfile');
+const InfluencerVerification = require('../models/influencerVerification');
 const Niche = require('../models/Niche');
 const User = require('../models/User');
 
 module.exports = {
+  fetchPendingVerifications: async (req, res) => {
+    const pageNumber = req.query.page || 1;
+    const skipNumber = (pageNumber - 1) * 20;
+    try {
+      const verifications = await InfluencerVerification.find({}, null, {
+        skip: skipNumber,
+      }).populate('influencer');
+
+      return res.status(200).json({
+        status: true,
+        message: 'Verifications fetched successfully',
+        data: verifications,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: false,
+        message: 'Error occured fetching verifications',
+        data: null,
+      });
+    }
+  },
+  uploadVerification: async (req, res) => {
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ status: false, message: 'No file provided', data: null });
+    }
+    const details = req.body;
+    try {
+      const cloudinaryResult = await cloudinary.uploader.upload(req.file.path);
+      const verification = await InfluencerVerification.create({
+        influencer: details.influencer_id,
+        scanUrl: cloudinaryResult.secure_url,
+      });
+      await InfluencerProfile.findByIdAndUpdate(details.influencer_id, {
+        verificationStatus: 'Pending',
+        verificationImage: cloudinaryResult.secure_url,
+      });
+      return res.status(201).json({
+        status: true,
+        message: 'Upload Successful.',
+        data: verification,
+      });
+    } catch (error) {
+      console.log({ error });
+      return res.status(500).json({
+        status: false,
+        message: 'Error uploading or saving the file',
+        data: null,
+      });
+    }
+  },
+  verifyInfluencer: async (req, res) => {
+    const details = req.body;
+
+    try {
+      const verification = await InfluencerVerification.findByIdAndDelete(
+        details.verification_id
+      );
+      const influencerProfile = await InfluencerProfile.findByIdAndUpdate(
+        verification.influencer,
+        {
+          verification: details.verification,
+          verificationImage: verification.scanUrl,
+        }
+      );
+      return res.status(200).json({
+        status: true,
+        message: 'Verification complete.',
+        data: influencerProfile,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: false,
+        message: 'Error occured with verification.',
+        data: null,
+      });
+    }
+  },
   uploadProfilePhoto: async (req, res) => {
     if (!req.file) {
       return res
@@ -268,7 +348,7 @@ module.exports = {
     const pageNumber = parseInt(req.query.page) || 1;
     const pageSize = 20;
     const skipNumber = (pageNumber - 1) * pageSize;
-  
+
     try {
       const influencerProfiles = await InfluencerProfile.find()
         .skip(skipNumber)
@@ -276,9 +356,9 @@ module.exports = {
         .sort('-updatedAt')
         .populate({
           path: 'niches',
-          select: 'name', 
-        });;
-  
+          select: 'name',
+        });
+
       if (!influencerProfiles || influencerProfiles.length === 0) {
         return res.status(404).json({
           success: false,
@@ -286,7 +366,6 @@ module.exports = {
         });
       }
 
-     
       const simplifiedProfiles = influencerProfiles.map((profile) => ({
         _id: profile._id,
         imageURL: profile.imageURL,
@@ -304,7 +383,7 @@ module.exports = {
         })),
         userId: profile.userId,
       }));
-  
+
       res.status(200).json(simplifiedProfiles);
     } catch (error) {
       console.log(error);
@@ -313,5 +392,5 @@ module.exports = {
         message: 'Error retrieving influencer profiles',
       });
     }
-  },  
+  },
 };

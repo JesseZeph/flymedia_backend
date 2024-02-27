@@ -58,6 +58,15 @@ const InfluencerProfileSchema = new mongoose.Schema({
     required: true,
     // unique: true,
   },
+  verificationStatus: {
+    type: String,
+    enum: ['Not Started', 'Pending', 'Verified', 'Failed'],
+    default: 'Not Started',
+  },
+  verificationImage: {
+    type: String,
+    default: null,
+  },
 });
 
 module.exports = mongoose.model('InfluencerProfile', InfluencerProfileSchema);
