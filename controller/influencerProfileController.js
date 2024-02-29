@@ -59,16 +59,19 @@ module.exports = {
   },
   verifyInfluencer: async (req, res) => {
     const details = req.body;
-
     try {
       const verification = await InfluencerVerification.findByIdAndDelete(
         details.verification_id
       );
+
       const influencerProfile = await InfluencerProfile.findByIdAndUpdate(
         verification.influencer,
         {
           verification: details.verification,
           verificationImage: verification.scanUrl,
+        },
+        {
+          returnDocument: 'after',
         }
       );
       return res.status(200).json({
