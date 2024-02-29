@@ -61,13 +61,13 @@ module.exports = {
     const details = req.body;
 
     try {
-      // const verification = await InfluencerVerification.findByIdAndDelete(
-      //   details.verification_id
-      // );
+      const verification = await InfluencerVerification.findByIdAndDelete(
+        details.verification_id
+      );
       const influencerProfile = await InfluencerProfile.findByIdAndUpdate(
         verification.influencer,
         {
-          verification: details.verification,
+          verificationStatus: details.verification,
           verificationImage: verification.scanUrl,
         }
       );
