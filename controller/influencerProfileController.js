@@ -67,7 +67,7 @@ module.exports = {
       const influencerProfile = await InfluencerProfile.findByIdAndUpdate(
         verification.influencer,
         {
-          verificationStatus: details.verification,
+          verification: details.verification,
           verificationImage: verification.scanUrl,
         }
       );
