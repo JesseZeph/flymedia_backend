@@ -32,15 +32,6 @@ const initiateCampaignPayment = async (req, res) => {
   try {
     const session = await createStripSession(campaignFee);
 
-    // const user = await User.findOne({ _id: userId });
-    // if (!user) {
-    //     return res.status(404).json({
-    //         status: false,
-    //         message: 'User not found',
-    //         data: null,
-    //     });
-    // }
-
     const campaignPayment = new CampaignPayment({
       user: userId,
       campaign: campaignId,
@@ -69,20 +60,6 @@ const paymentSuccess = async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     if (session.payment_status === 'paid') {
-      //   try {
-      // const campaign = await Campaign.find({ _id: campaignId });
-      // const user = await User.findOne({ _id: userId });
-
-      // campaign.sessionId = sessionId;
-      //   const newCampaignPayment = new CampaignPayment({
-      //     user: user._id,
-      //     campaign: campaignId,
-      //     sessionId: session.id,
-      //     paymentStatus: 'Paid',
-      //     paymentDate: Date.now(),
-      //   });
-
-      //   const savedCampaignPayment = await newCampaignPayment.save();
       const savedCampaignPayment = await CampaignPayment.findOneAndUpdate(
         {
           campaign: campaignId,
@@ -93,19 +70,15 @@ const paymentSuccess = async (req, res) => {
         },
         { returnDocument: 'after' }
       );
+
+      await Campaign.findByIdAndUpdate(campaignId, {
+        isPaidFor: true,
+      })
       res.status(200).json({
         status: true,
         message: 'Payment Successful',
         data: savedCampaignPayment,
-      });
-      //   } catch (error) {
-      //     console.error('Error getting Payment from Stripe: ', error);
-      //     res.status(400).json({
-      //       status: false,
-      //       message: 'Error Processing payment',
-      //       data: null,
-      //     });
-      //   }
+      });   
     } else {
       console.error('Payment Failed - Not Paid');
       return res.status(400).json({

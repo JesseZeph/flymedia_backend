@@ -45,6 +45,10 @@ const companyDetailsSchema = new mongoose.Schema(
       ref: 'InfluencerProfile',
       default: null,
     },
+
+    isPaidFor: {
+      type: Boolean, default: false
+    },
   },
   { timestamps: true }
 );
