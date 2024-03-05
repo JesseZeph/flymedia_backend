@@ -118,13 +118,14 @@ module.exports = {
     const pageNumber = req.query.page;
     const skipNumber = (pageNumber - 1) * 20;
     try {
-      const logoWithDesc = await CampaignUpload.find({
-        assigned: null,
-        applicationsFull: false,
-      },
+      const logoWithDesc = await CampaignUpload.find(
+        {
+          assigned: null,
+          applicationsFull: false,
+        },
         null,
-        { skip: skipNumber, limit: 20, sort: '-updatedAt' 
-      }).exec();
+        { skip: skipNumber, limit: 20, sort: '-updatedAt' }
+      ).exec();
 
       if (logoWithDesc.length > 0) {
         return res.status(200).json(logoWithDesc);
@@ -185,7 +186,6 @@ module.exports = {
     }
   },
 
-
   assignInfluencer: async (req, res) => {
     const details = req.body;
 
@@ -222,6 +222,40 @@ module.exports = {
       return res.status(500).json({
         status: false,
         message: 'An error occured with assigning influencer',
+        data: null,
+      });
+    }
+  },
+
+  acceptCampaign: async (req, res) => {
+    const { accepted, active_campaign_id } = req.body;
+    const userAccepted = accepted == 'Accept';
+    try {
+      const updatedCampaign = await ActiveCampaign.findByIdAndUpdate(
+        active_campaign_id,
+        {
+          status: userAccepted ? 'In Progress' : 'Rejected',
+          message: userAccepted
+            ? 'Campaign has not been completed'
+            : 'Assigned Influencer refused campaign.',
+          accepted: userAccepted,
+        },
+        {
+          returnDocument: 'after',
+        }
+      );
+      return res.status(201).json({
+        status: true,
+        message: 'Campaign updated successfully.',
+        data: {
+          status: updatedCampaign.status,
+          message: updatedCampaign.message,
+        },
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: false,
+        message: 'An error occured with accepting campaign',
         data: null,
       });
     }

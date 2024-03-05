@@ -4,10 +4,12 @@ const AssignedCampaignController = require('../controller/assignedCampaignContro
 const {
   verifyAndAuthorization,
   verifyClient,
+  verifyInfluencer,
 } = require('../middleware/verifyToken');
 const upload = require('../middleware/multer');
 
 router.post('/assign', verifyClient, UploadImageController.assignInfluencer);
+router.post('/accept', verifyInfluencer, UploadImageController.acceptCampaign);
 router.post(
   '/',
   verifyAndAuthorization,

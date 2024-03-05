@@ -19,17 +19,21 @@ const ActiveCampaignSchema = new Schema({
   },
   status: {
     type: String,
-    default: 'In progress',
+    default: 'Pending',
   },
   message: {
     type: String,
-    default: 'The listing has not been completed.',
+    default: 'Influencer yet to accept the campaign.',
   },
   completed: {
     type: Boolean,
     default: false,
   },
   verified_complete: {
+    type: Boolean,
+    default: false,
+  },
+  accepted: {
     type: Boolean,
     default: false,
   },
