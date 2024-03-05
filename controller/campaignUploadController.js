@@ -231,7 +231,7 @@ module.exports = {
     const { accepted, active_campaign_id } = req.body;
     const userAccepted = accepted == 'Accept';
     try {
-      const updatedCampaign = ActiveCampaign.findByIdAndUpdate(
+      const updatedCampaign = await ActiveCampaign.findByIdAndUpdate(
         active_campaign_id,
         {
           status: userAccepted ? 'In Progress' : 'Rejected',
