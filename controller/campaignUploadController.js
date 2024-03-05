@@ -190,20 +190,20 @@ module.exports = {
     const details = req.body;
 
     try {
-      // const assignedInfluencer = await InfluencerProfile.findOne({
-      //   email: details.influencer_mail,
-      // });
+      const assignedInfluencer = await InfluencerProfile.findOne({
+        email: details.influencer_mail,
+      });
 
-      // if (
-      //   !assignedInfluencer ||
-      //   assignedInfluencer.firstAndLastName != details.influencer_name
-      // ) {
-      //   return res.status(400).json({
-      //     status: false,
-      //     message: 'Influencer with provided details not found',
-      //     data: null,
-      //   });
-      // }
+      if (
+        !assignedInfluencer ||
+        assignedInfluencer.firstAndLastName != details.influencer_name
+      ) {
+        return res.status(400).json({
+          status: false,
+          message: 'Influencer with provided details not found',
+          data: null,
+        });
+      }
       const campaign = new ActiveCampaign({
         campaign: details.campaign_id,
         influencer: assignedInfluencer._id,
