@@ -28,7 +28,7 @@ const fetchUserCampaigns = async (req, res) => {
       })
         .populate(
           'campaign',
-          '_id imageUrl jobTitle country jobDescription rateTo'
+          '_id imageUrl jobTitle country jobDescription rate'
         )
         .populate('influencer', '_id imageURL firstAndLastName location')
         .exec();
