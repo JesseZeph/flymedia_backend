@@ -67,6 +67,11 @@ const InfluencerProfileSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  points: {
+    type: mongoose.Types.ObjectId,
+    ref: 'InfluencerPoint',
+    default: null,
+  },
 });
 
 module.exports = mongoose.model('InfluencerProfile', InfluencerProfileSchema);

@@ -3,6 +3,7 @@ const InfluencerProfile = require('../models/InfluencerProfile');
 const InfluencerVerification = require('../models/influencerVerification');
 const Niche = require('../models/Niche');
 const User = require('../models/User');
+const Points = require('../models/influencer.points');
 
 module.exports = {
   fetchPendingVerifications: async (req, res) => {
@@ -127,8 +128,7 @@ module.exports = {
           nicheObjects.push(newNiche);
         }
       }
-
-      const newInfluencerProfile = new InfluencerProfile({
+      const newInfluencerProfile = await InfluencerProfile.create({
         userId: userId,
         imageURL: cloudinaryResult.secure_url,
         firstAndLastName: req.body.firstAndLastName,
@@ -141,6 +141,10 @@ module.exports = {
         niches: nicheObjects,
         bio: req.body.bio,
       });
+      const newPoints = await Points.create({
+        influencer: newInfluencerProfile._id,
+      });
+      newInfluencerProfile.points = newPoints._id;
 
       const savedInfluencerProfile = await newInfluencerProfile.save();
 
@@ -262,7 +266,8 @@ module.exports = {
       }
 
       const userProfile = await InfluencerProfile.findOne({ userId }).populate(
-        'niches'
+        'niches',
+        'points'
       );
 
       if (!userProfile) {

@@ -1,4 +1,5 @@
 const ActiveCampaign = require('../models/activeCampaigns');
+const Points = require('../models/influencer.points');
 
 const fetchUserCampaigns = async (req, res) => {
   //for influencers, user_id is influencer profile id
@@ -90,6 +91,7 @@ const campaignAction = async (req, res) => {
       activeCampaign.completed_date = Date.now();
       activeCampaign.message = 'Campaign completed.';
       const campaign = await activeCampaign.save();
+      updateInfluencerPoints(campaign.influencer);
       return res.status(200).json({
         status: true,
         message: 'Campaign updated successfully',
@@ -105,6 +107,28 @@ const campaignAction = async (req, res) => {
     });
   }
 };
+
+async function updateInfluencerPoints(influencerId) {
+  try {
+    const influencerPoint = await Points.findOne({ influencer: influencerId });
+    if (influencerPoint.campaigns_completed == 0) {
+      influencerPoint.completed_tasks.push('2');
+      influencerPoint.campaigns_completed = 1;
+      influencerPoint.total_points += 1;
+      await influencerPoint.save();
+    } else if (influencerPoint.campaigns_completed == 4) {
+      influencerPoint.completed_tasks.push('3');
+      influencerPoint.campaigns_completed = 5;
+      influencerPoint.total_points += 8;
+      await influencerPoint.save();
+    } else {
+      influencerPoint.campaigns_completed += 1;
+      await influencerPoint.save();
+    }
+  } catch (error) {
+    console.log({ err });
+  }
+}
 
 module.exports = {
   fetchUserCampaigns,
