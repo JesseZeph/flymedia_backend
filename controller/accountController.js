@@ -102,7 +102,7 @@ const fetchAccount = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: 'Error with deleting account',
+      message: 'Error with fetching account',
       data: null,
     });
   }
