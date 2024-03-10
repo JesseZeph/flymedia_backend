@@ -154,7 +154,6 @@ module.exports = {
         savedInfluencerProfile,
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         success: false,
         message: 'Error uploading or saving the file',
@@ -265,10 +264,9 @@ module.exports = {
           .json({ success: false, message: 'User ID is required' });
       }
 
-      const userProfile = await InfluencerProfile.findOne({ userId }).populate(
-        'niches',
-        'points'
-      );
+      const userProfile = await InfluencerProfile.findOne({ userId })
+        .populate('niches')
+        .populate('points');
 
       if (!userProfile) {
         return res
