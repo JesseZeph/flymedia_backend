@@ -266,7 +266,8 @@ module.exports = {
 
       const userProfile = await InfluencerProfile.findOne({ userId })
         .populate('niches')
-        .populate('points');
+        .populate('points')
+        .exec();
 
       if (!userProfile) {
         return res
@@ -293,6 +294,7 @@ module.exports = {
         bio: userProfile.bio,
         userId: userProfile.userId,
         verificationStatus: userProfile.verificationStatus,
+        points: userProfile.points,
       };
 
       res.status(200).json(influencerProfile);
