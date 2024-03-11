@@ -121,7 +121,7 @@ module.exports = {
       const logoWithDesc = await CampaignUpload.find(
         {
           assigned: null,
-          applicationsFull: false,
+          // applicationsFull: false,
         },
         null,
         { skip: skipNumber, limit: 20, sort: '-updatedAt' }
