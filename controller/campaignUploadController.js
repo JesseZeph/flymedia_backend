@@ -5,6 +5,10 @@ const User = require('../models/User');
 const InfluencerProfile = require('../models/InfluencerProfile');
 const ActiveCampaign = require('../models/activeCampaigns');
 
+async function updateRejectedCampaign(campignId) {
+  await CampaignUpload.findByIdAndUpdate(campignId, { assigned: null });
+}
+
 module.exports = {
   uploadCampaignImageAndDesc: async (req, res) => {
     try {
@@ -204,6 +208,7 @@ module.exports = {
           data: null,
         });
       }
+      await ActiveCampaign.findOneAndDelete({ campaign: details.campaign_id });
       const campaign = new ActiveCampaign({
         campaign: details.campaign_id,
         influencer: assignedInfluencer._id,
@@ -244,6 +249,7 @@ module.exports = {
           returnDocument: 'after',
         }
       );
+      if (!userAccepted) updateRejectedCampaign(updatedCampaign.campaign);
       return res.status(201).json({
         status: true,
         message: 'Campaign updated successfully.',
