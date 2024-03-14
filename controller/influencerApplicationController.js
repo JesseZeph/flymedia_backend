@@ -120,14 +120,12 @@ module.exports = {
     const campaign_id = req.query.id;
 
     try {
-      const campaignApplicantsList = await InfluencerApplication.findOne(
-        {
-          campaignId: campaign_id,
-        },
-        '-points'
-      )
+      const campaignApplicantsList = await InfluencerApplication.findOne({
+        campaignId: campaign_id,
+      })
         .populate({
           path: 'influencers',
+          select: '-points',
           populate: { path: 'niches', strictPopulate: false },
         })
         .exec();
