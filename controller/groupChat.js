@@ -24,10 +24,10 @@ const fetchChats = async (req, res) => {
     }
     res
       .status(200)
-      .json({ success: true, message: 'Chats retrieved', data: chats });
+      .json({ status: true, message: 'Chats retrieved', data: chats });
   } catch (error) {
     res.status(500).json({
-      success: false,
+      status: false,
       message: 'Error occured, try later.',
       data: null,
     });
@@ -57,14 +57,14 @@ const updateChat = async (req, res) => {
     const updatedChat = await chat.save();
 
     res.status(200).json({
-      success: true,
+      status: true,
       message: 'Chat updated successfully',
       data: updatedChat,
     });
   } catch (error) {
     res
       .status(500)
-      .json({ success: false, message: 'Error updating chat', data: null });
+      .json({ status: false, message: 'Error updating chat', data: null });
   }
 };
 
@@ -87,14 +87,14 @@ const updateChatStatus = async (req, res) => {
     const updatedChat = await chat.save();
 
     return res.status(200).json({
-      success: true,
+      status: true,
       message: 'Chat status updated.',
       data: updatedChat,
     });
   } catch (error) {
     return res
       .status(500)
-      .json({ success: false, message: 'Internal server error.' });
+      .json({ status: false, message: 'Internal server error.' });
   }
 };
 

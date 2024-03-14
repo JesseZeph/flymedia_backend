@@ -14,11 +14,11 @@ const addChat = async (req, res) => {
 
     res
       .status(200)
-      .json({ success: true, message: 'New chat created', data: newChat });
+      .json({ status: true, message: 'New chat created', data: newChat });
   } catch (error) {
     res
       .status(500)
-      .json({ success: false, message: 'Error creating new chat', data: null });
+      .json({ status: false, message: 'Error creating new chat', data: null });
   }
 };
 
@@ -44,7 +44,7 @@ const updateChat = async (req, res) => {
     // ).exec();
     // if (chat) {
     res.status(200).json({
-      success: true,
+      status: true,
       message: 'Chat updated successfully',
       data: updatedChat,
     });
@@ -58,7 +58,7 @@ const updateChat = async (req, res) => {
   } catch (error) {
     res
       .status(500)
-      .json({ success: false, message: 'Error updating chat', data: null });
+      .json({ status: false, message: 'Error updating chat', data: null });
   }
 };
 
@@ -67,14 +67,14 @@ const deleteChat = async (req, res) => {
   try {
     const deletedDoc = await Chat.deleteOne({ _id: chat_id });
     res.status(200).json({
-      success: true,
+      status: true,
       message: 'Chat deleted successfully',
       data: deletedDoc,
     });
   } catch (error) {
     res
       .status(500)
-      .json({ success: false, message: 'Error deleting chat', data: null });
+      .json({ status: false, message: 'Error deleting chat', data: null });
   }
 };
 
@@ -100,10 +100,10 @@ const fetchAllChats = async (req, res) => {
 
     res
       .status(200)
-      .json({ success: true, message: 'Chats retrieved', data: chats });
+      .json({ status: true, message: 'Chats retrieved', data: chats });
   } catch (error) {
     res.status(500).json({
-      success: false,
+      status: false,
       message: 'Error occured, try later.',
       data: null,
     });
@@ -125,15 +125,15 @@ const fetchSingleChat = async (req, res) => {
     if (chat) {
       res
         .status(200)
-        .json({ success: true, message: 'Chat retrieved', data: chat });
+        .json({ status: true, message: 'Chat retrieved', data: chat });
     } else {
       res
         .status(404)
-        .json({ success: true, message: 'No chat found', data: null });
+        .json({ status: true, message: 'No chat found', data: null });
     }
   } catch (error) {
     res.status(500).json({
-      success: false,
+      status: false,
       message: 'Error occured, try later.',
       data: null,
     });
@@ -155,13 +155,11 @@ const updateChatStatus = async (req, res) => {
     //   chat.new_messages_count = 0;
     //   await chat.save();
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: 'Chat status updated.',
-        data: updatedChat,
-      });
+    return res.status(200).json({
+      status: true,
+      message: 'Chat status updated.',
+      data: updatedChat,
+    });
     // } else {
     //   return res
     //     .status(404)
@@ -170,7 +168,7 @@ const updateChatStatus = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ success: false, message: 'Internal server error.' });
+      .json({ status: false, message: 'Internal server error.' });
   }
 };
 
