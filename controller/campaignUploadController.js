@@ -4,10 +4,19 @@ const Company = require('../models/VerifyCompany');
 const User = require('../models/User');
 const InfluencerProfile = require('../models/InfluencerProfile');
 const ActiveCampaign = require('../models/activeCampaigns');
+const GroupEventHandler = require('./event_handlers/groupChat');
+
+const EventEmitter = require('events');
+
+const eventEmitter = new EventEmitter();
 
 async function updateRejectedCampaign(campignId) {
   await CampaignUpload.findByIdAndUpdate(campignId, { assigned: null });
 }
+
+eventEmitter.on('create-group', (client, influencer, campaign) => {
+  GroupEventHandler.createGroupChat(client, influencer, campaign);
+});
 
 module.exports = {
   uploadCampaignImageAndDesc: async (req, res) => {
@@ -125,7 +134,6 @@ module.exports = {
       const logoWithDesc = await CampaignUpload.find(
         {
           assigned: null,
-          // applicationsFull: false,
         },
         null,
         { skip: skipNumber, limit: 20, sort: '-updatedAt' }
@@ -249,7 +257,16 @@ module.exports = {
           returnDocument: 'after',
         }
       );
-      if (!userAccepted) updateRejectedCampaign(updatedCampaign.campaign);
+      if (userAccepted) {
+        eventEmitter.emit(
+          'create-group',
+          updatedCampaign.client,
+          updatedCampaign.influencer,
+          updatedCampaign.campaign
+        );
+      } else {
+        updateRejectedCampaign(updatedCampaign.campaign);
+      }
       return res.status(201).json({
         status: true,
         message: 'Campaign updated successfully.',

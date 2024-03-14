@@ -19,6 +19,10 @@ const ChatSchema = new schema(
       type: Number,
       default: 1,
     },
+    new_messages_count_client: {
+      type: Number,
+      default: 1,
+    },
   },
   {
     timestamps: {
@@ -28,11 +32,11 @@ const ChatSchema = new schema(
   }
 );
 
-ChatSchema.post('findOneAndUpdate', function (doc, next) {
-  doc.new_messages_count++;
-  doc.save();
-  next();
-});
+// ChatSchema.post('findOneAndUpdate', function (doc, next) {
+//   doc.new_messages_count++;
+//   doc.save();
+//   next();
+// });
 
 const ChatModel = mongoose.model('Chat', ChatSchema);
 

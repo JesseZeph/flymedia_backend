@@ -1,5 +1,13 @@
 const ActiveCampaign = require('../models/activeCampaigns');
 const Points = require('../models/influencer.points');
+const GroupEventHandler = require('./event_handlers/groupChat');
+const EventEmitter = require('events');
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('campaign-complete', (campaign) => {
+  GroupEventHandler.campaignCompleted(campaign);
+});
 
 const fetchUserCampaigns = async (req, res) => {
   //for influencers, user_id is influencer profile id
@@ -92,6 +100,7 @@ const campaignAction = async (req, res) => {
       activeCampaign.message = 'Campaign completed.';
       const campaign = await activeCampaign.save();
       updateInfluencerPoints(campaign.influencer);
+      eventEmitter.emit('campaign-complete', campaign.campaign);
       return res.status(200).json({
         status: true,
         message: 'Campaign updated successfully',

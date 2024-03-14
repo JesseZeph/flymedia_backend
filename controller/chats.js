@@ -23,30 +23,38 @@ const addChat = async (req, res) => {
 };
 
 const updateChat = async (req, res) => {
-  const { chat_id, last_message } = req.body;
+  const { chat_id, last_message, user_type } = req.body;
 
   try {
-    const chat = await Chat.findByIdAndUpdate(
-      chat_id,
-      { last_message: last_message },
-      {
-        new: true,
-        returnDocument: 'after',
-      }
-    ).exec();
-    if (chat) {
-      res.status(200).json({
-        success: true,
-        message: 'Chat updated successfully',
-        data: chat,
-      });
+    const chat = await Chat.findById(chat_id);
+    chat.last_message = last_message;
+    if (user_type == 'Client') {
+      chat.new_messages_count += 1;
     } else {
-      res.status(404).json({
-        success: false,
-        message: 'Chat not found',
-        data: null,
-      });
+      chat.new_messages_count_client += 1;
     }
+    const updatedChat = await chat.save();
+    // const chat = await Chat.findByIdAndUpdate(
+    //   chat_id,
+    //   { last_message: last_message },
+    //   {
+    //     new: true,
+    //     returnDocument: 'after',
+    //   }
+    // ).exec();
+    // if (chat) {
+    res.status(200).json({
+      success: true,
+      message: 'Chat updated successfully',
+      data: updatedChat,
+    });
+    // } else {
+    //   res.status(404).json({
+    //     success: false,
+    //     message: 'Chat not found',
+    //     data: null,
+    //   });
+    // }
   } catch (error) {
     res
       .status(500)
@@ -133,23 +141,32 @@ const fetchSingleChat = async (req, res) => {
 };
 
 const updateChatStatus = async (req, res) => {
-  const { chat_id } = req.body;
+  const { chat_id, user_type } = req.body;
 
   try {
-    let chat = await Chat.findById(chat_id).exec();
-
-    if (chat) {
-      chat.new_messages_count = 0;
-      await chat.save();
-
-      return res
-        .status(200)
-        .json({ success: true, message: 'Chat status updated.' });
+    const chat = await Chat.findById(chat_id);
+    if (user_type == 'Client') {
+      chat.new_messages_count_client = 0;
     } else {
-      return res
-        .status(404)
-        .json({ success: false, message: 'Chat not found.' });
+      chat.new_messages_count = 0;
     }
+    const updatedChat = await chat.save();
+    // if (chat) {
+    //   chat.new_messages_count = 0;
+    //   await chat.save();
+
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: 'Chat status updated.',
+        data: updatedChat,
+      });
+    // } else {
+    //   return res
+    //     .status(404)
+    //     .json({ success: false, message: 'Chat not found.' });
+    // }
   } catch (error) {
     return res
       .status(500)
