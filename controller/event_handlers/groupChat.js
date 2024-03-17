@@ -6,8 +6,8 @@ const createGroupChat = async (clientId, influencerId, campaignId) => {
   try {
     const admins = await Users.find({ userType: 'Admin' });
     const campaign = await Campaigns.findById(campaignId);
-    const assignedAdmin = admins.at(getRandomInt(admins.length));
-    const groupChatName = campaign.jobTitle + ' group chat';
+    const assignedAdmin = admins.at(getRandomInt(admins.length - 1));
+    const groupChatName = campaign.jobTitle + ' Group Chat';
     await GroupChat.create({
       influencer: influencerId,
       client: clientId,
@@ -31,6 +31,7 @@ const campaignCompleted = async (campaignId) => {
 };
 
 function getRandomInt(max) {
+  console.log(`===============> max passed: ${max}`);
   return Math.floor(Math.random() * (max + 1));
 }
 

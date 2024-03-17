@@ -14,16 +14,6 @@ const CompanySchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    // campaignsInMonth: { type: Number, default: 0 },
-    // subscription: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: 'Subscription',
-    //   default: null,
-    // },
-    // expiry: {
-    //   type: Date,
-    //   default: null,
-    // },
   },
   { timestamps: true }
 );
