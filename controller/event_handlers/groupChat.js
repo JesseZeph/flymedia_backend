@@ -31,7 +31,6 @@ const campaignCompleted = async (campaignId) => {
 };
 
 function getRandomInt(max) {
-  console.log(`===============> max passed: ${max}`);
   return Math.floor(Math.random() * (max + 1));
 }
 
