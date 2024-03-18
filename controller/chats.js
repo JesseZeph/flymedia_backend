@@ -1,7 +1,7 @@
 const Chat = require('../models/ChatModel');
 
 const addChat = async (req, res) => {
-  const { company_owner_id, influencer_id, last_message } = req.body;
+  const { company_owner_id, influencer_id, last_message, user_type } = req.body;
 
   try {
     const newChat = new Chat({
@@ -9,7 +9,11 @@ const addChat = async (req, res) => {
       influencer: influencer_id,
       last_message: last_message,
     });
-
+    if (user_type == 'Client') {
+      newChat.new_messages_count += 1;
+    } else {
+      newChat.new_messages_count_client += 1;
+    }
     await newChat.save();
 
     res
