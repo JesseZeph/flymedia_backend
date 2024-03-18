@@ -17,11 +17,11 @@ const ChatSchema = new schema(
     },
     new_messages_count: {
       type: Number,
-      default: 1,
+      default: 0,
     },
     new_messages_count_client: {
       type: Number,
-      default: 1,
+      default: 0,
     },
   },
   {
