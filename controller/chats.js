@@ -67,13 +67,35 @@ const updateChat = async (req, res) => {
 };
 
 const deleteChat = async (req, res) => {
-  const { chat_id } = req.body;
+  const { chat_id, user_type } = req.body;
+  let chatResponse;
   try {
-    const deletedDoc = await Chat.deleteOne({ _id: chat_id });
+    const chat = await Chat.findById(chat_id);
+    switch (user_type) {
+      case 'Client':
+        if (chat.influencer == null) {
+          chatResponse = await Chat.findByIdAndDelete(chat_id);
+        } else {
+          chatResponse = await Chat.findByIdAndUpdate(chat_id, {
+            company: null,
+          });
+        }
+        break;
+      case 'Influencer':
+        if (chat.company == null) {
+          chatResponse = await Chat.findByIdAndDelete(chat_id);
+        } else {
+          chatResponse = await Chat.findByIdAndUpdate(chat_id, {
+            influencer: null,
+          });
+        }
+        break;
+    }
+    // const deletedDoc = await Chat.deleteOne();
     res.status(200).json({
       status: true,
       message: 'Chat deleted successfully',
-      data: deletedDoc,
+      data: chatResponse,
     });
   } catch (error) {
     res
