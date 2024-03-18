@@ -73,20 +73,20 @@ const deleteChat = async (req, res) => {
     const chat = await Chat.findById(chat_id);
     switch (user_type) {
       case 'Client':
-        if (chat.influencer == null) {
+        if (chat.influencer_deleted) {
           chatResponse = await Chat.findByIdAndDelete(chat_id);
         } else {
           chatResponse = await Chat.findByIdAndUpdate(chat_id, {
-            company: null,
+            client_deleted: true,
           });
         }
         break;
       case 'Influencer':
-        if (chat.company == null) {
+        if (chat.client_deleted) {
           chatResponse = await Chat.findByIdAndDelete(chat_id);
         } else {
           chatResponse = await Chat.findByIdAndUpdate(chat_id, {
-            influencer: null,
+            influencer_deleted: true,
           });
         }
         break;
@@ -112,14 +112,14 @@ const fetchAllChats = async (req, res) => {
 
   try {
     if (userType === 'Client') {
-      chats = await Chat.find({ company: userId })
+      chats = await Chat.find({ company: userId, client_deleted: false })
         .populate({
           path: 'influencer',
           populate: { path: 'niches', strictPopulate: false },
         })
         .exec();
     } else {
-      chats = await Chat.find({ influencer: userId })
+      chats = await Chat.find({ influencer: userId, influencer_deleted: false })
         .populate('company')
         .exec();
     }

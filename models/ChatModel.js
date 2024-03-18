@@ -17,11 +17,19 @@ const ChatSchema = new schema(
     },
     new_messages_count: {
       type: Number,
-      default: 0,
+      default: 1,
     },
     new_messages_count_client: {
       type: Number,
       default: 0,
+    },
+    client_deleted: {
+      type: Boolean,
+      default: false,
+    },
+    influencer_deleted: {
+      type: Boolean,
+      default: false,
     },
   },
   {

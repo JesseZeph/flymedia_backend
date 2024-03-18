@@ -1,6 +1,7 @@
 const ActiveCampaign = require('../models/activeCampaigns');
 const Points = require('../models/influencer.points');
 const GroupEventHandler = require('./event_handlers/groupChat');
+const Applicants = require('../models/influencerApplication');
 const EventEmitter = require('events');
 
 const eventEmitter = new EventEmitter();
@@ -99,6 +100,7 @@ const campaignAction = async (req, res) => {
       activeCampaign.completed_date = Date.now();
       activeCampaign.message = 'Campaign completed.';
       const campaign = await activeCampaign.save();
+      Applicants.findOneAndDelete({ campaignId: campaign.campaign });
       updateInfluencerPoints(campaign.influencer);
       eventEmitter.emit('campaign-complete', campaign.campaign);
       return res.status(200).json({
