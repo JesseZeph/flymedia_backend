@@ -5,6 +5,7 @@ const User = require('../models/User');
 const InfluencerProfile = require('../models/InfluencerProfile');
 const ActiveCampaign = require('../models/activeCampaigns');
 const GroupEventHandler = require('./event_handlers/groupChat');
+const AssignCampaignNotifier = require('./event_handlers/assignedCampaign');
 
 const EventEmitter = require('events');
 
@@ -16,6 +17,10 @@ async function updateRejectedCampaign(campignId) {
 
 eventEmitter.on('create-group', (client, influencer, campaign) => {
   GroupEventHandler.createGroupChat(client, influencer, campaign);
+});
+
+eventEmitter.on('campaign-assigned', (mail, name, campaign) => {
+  AssignCampaignNotifier.sendMail(mail, name, campaign);
 });
 
 module.exports = {
@@ -217,15 +222,25 @@ module.exports = {
         });
       }
       await ActiveCampaign.findOneAndDelete({ campaign: details.campaign_id });
+
       const campaign = new ActiveCampaign({
         campaign: details.campaign_id,
         influencer: assignedInfluencer._id,
         client: req.user.id,
       });
       const new_campaign = await campaign.save();
-      await CampaignUpload.findByIdAndUpdate(details.campaign_id, {
-        assigned: assignedInfluencer._id,
-      });
+      const updatedCampaign = await CampaignUpload.findByIdAndUpdate(
+        details.campaign_id,
+        {
+          assigned: assignedInfluencer._id,
+        }
+      );
+      eventEmitter.emit(
+        'campaign-assigned',
+        assignedInfluencer.email,
+        assignedInfluencer.firstAndLastName,
+        updatedCampaign.jobTitle
+      );
       return res.status(200).json({
         status: true,
         message: 'Influencer assigned successfully.',

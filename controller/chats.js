@@ -1,7 +1,7 @@
 const Chat = require('../models/ChatModel');
 
 const addChat = async (req, res) => {
-  const { company_owner_id, influencer_id, last_message, user_type } = req.body;
+  const { company_owner_id, influencer_id, last_message } = req.body;
 
   try {
     const newChat = new Chat({
