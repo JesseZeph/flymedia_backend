@@ -1,5 +1,14 @@
 const Company = require('../models/VerifyCompany')
 const User = require('../models/User');
+const VerifyCompanyNotifier = require('./event_handlers/verifyCompany')
+
+const EventEmitter =require('events');
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('company-verified', (mail, company, address) => {
+    VerifyCompanyNotifier.sendMail(mail, company, address)
+})
 
 
 module.exports = {
@@ -43,6 +52,13 @@ module.exports = {
             
             company.isVerified = !company.isVerified;
             await company.save();
+
+            eventEmitter.emit(
+                'company-verified',
+                company.companyEmail,
+                company.companyName,
+                company.companyHq
+            )
 
             res.status(200).json({ status: true, message: `Company verification toggled. New status: ${company.isVerified}` });
 

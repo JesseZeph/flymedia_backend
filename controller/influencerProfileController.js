@@ -4,6 +4,17 @@ const InfluencerVerification = require('../models/influencerVerification');
 const Niche = require('../models/Niche');
 const User = require('../models/User');
 const Points = require('../models/influencer.points');
+const VerifyInfluencerNotifier = require('./event_handlers/verifyInfluencer')
+
+
+const EventEmitter = require('events');
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('profile-verified', (mail, name, image) => {
+  VerifyInfluencerNotifier.sendMail(mail, name, image);
+});
+
 
 module.exports = {
   fetchPendingVerifications: async (req, res) => {
@@ -75,6 +86,13 @@ module.exports = {
           returnDocument: 'after',
         }
       );
+
+      eventEmitter.emit(
+        'profile-verified',
+        influencerProfile.email,
+        influencerProfile.firstAndLastName,
+        verification.scanUrl
+            );
       return res.status(200).json({
         status: true,
         message: 'Verification complete.',
