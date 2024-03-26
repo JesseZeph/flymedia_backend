@@ -1,4 +1,4 @@
-const template = (influencerName, campaignTitle) => {
+const template = (influencerName) => {
     return `<!DOCTYPE html>
     <html lang="en">
       <head>
@@ -25,11 +25,9 @@ const template = (influencerName, campaignTitle) => {
         <p class="intro">Hi ${influencerName},</p>
         <p class="info">
           Congratulations! Your profile has been verified
-          <span id="title">"${campaignTitle}"</span>
         </p>
         <p class="info">
-          Log into your account to accept or reject this opportunity and begin the
-          collaboration.
+          Log into your account to start applying for campaigns.
         </p>
       </body>
     </html>

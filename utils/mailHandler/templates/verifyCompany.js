@@ -30,7 +30,7 @@ const template = (companyName) => {
           Congratulations! Your company has been verified
         </p>
         <p class="info">
-          You can now start applying posting campaigns
+          Please close the app and open it again so you can start posting campaigns
         </p>
       </body>
     </html>
