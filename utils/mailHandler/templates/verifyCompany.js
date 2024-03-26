@@ -1,10 +1,13 @@
-const template = (influencerName, imageUrl) => {
+const template = (companyName) => {
     return `<!DOCTYPE html>
     <html lang="en">
       <head>
         <meta charset="UTF-8" />
         <title>Flymedia Notification</title>
         <style>
+          * {
+            background-color: #fff;
+          }
           .intro {
             font-weight: bold;
             font-size: 14;
@@ -22,13 +25,12 @@ const template = (influencerName, imageUrl) => {
         </style>
       </head>
       <body>
-        <p class="intro">Hi ${influencerName},</p>
+        <p class="intro">Hi ${companyName},</p>
         <p class="info">
-          Congratulations! Your profile has been verified
-          <span id="title">"${imageUrl}"</span>
+          Congratulations! Your company has been verified
         </p>
         <p class="info">
-          You can now start applying for campaigns
+          Please close the app and open it again so you can start posting campaigns
         </p>
       </body>
     </html>
