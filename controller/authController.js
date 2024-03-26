@@ -175,10 +175,9 @@ module.exports = {
         { email: req.body.email },
         { __v: 0, updatedAt: 0, createdAt: 0, email: 0 }
       );
-
       const userType = req.body.user_type;
 
-      if (!user || user.userType != userType) {
+      if (!user || (user.userType != userType && !user.userType)) {
         return res
           .status(404)
           .json({ status: false, message: 'Account not found.' });
@@ -214,7 +213,7 @@ module.exports = {
       res.status(200).json({
         ...others,
         userToken,
-        userType,
+        userType: userType ?? user.userType,
         company: userCompany ? userCompany : {},
       });
     } catch (error) {
