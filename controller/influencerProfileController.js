@@ -72,37 +72,51 @@ module.exports = {
   verifyInfluencer: async (req, res) => {
     const details = req.body;
     try {
-
+      const verification = await InfluencerVerification.findById(
+        details.verification_id
+      );
+  
+      if (!verification) {
+        return res.status(404).json({
+          status: false,
+          message: 'Verification not found',
+          data: null
+        });
+      }
+  
       const influencerProfile = await InfluencerProfile.findByIdAndUpdate(
         verification.influencer,
         {
-          verification: details.verification,
+          verificationStatus: details.verification === 'verified' ? 'Verified' : 'Pending',
           verificationImage: verification.scanUrl,
         },
         {
           returnDocument: 'after',
         }
       );
-
+  
       eventEmitter.emit(
         'profile-verified',
         influencerProfile.email,
         influencerProfile.firstAndLastName,
         verification.scanUrl
-            );
+      );
+      
       return res.status(200).json({
         status: true,
         message: 'Verification complete.',
         data: influencerProfile,
       });
     } catch (error) {
+      console.error(error);
       return res.status(500).json({
         status: false,
-        message: 'Error occured with verification.',
+        message: 'Error occurred with verification.',
         data: null,
       });
     }
   },
+  
   uploadProfilePhoto: async (req, res) => {
     if (!req.file) {
       return res
