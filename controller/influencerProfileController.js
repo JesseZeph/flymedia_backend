@@ -87,17 +87,12 @@ module.exports = {
         }
       );
 
-      eventEmitter.emit(
-        'profile-verified',
-        influencerProfile.email,
-        influencerProfile.firstAndLastName,
-        verification.scanUrl
-            );
       return res.status(200).json({
         status: true,
         message: 'Verification complete.',
         data: influencerProfile,
       });
+
     } catch (error) {
       return res.status(500).json({
         status: false,
