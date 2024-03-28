@@ -53,7 +53,7 @@ module.exports = {
         scanUrl: cloudinaryResult.secure_url,
       });
       await InfluencerProfile.findByIdAndUpdate(details.influencer_id, {
-        verificationStatus: 'Pending',
+        verification: 'Pending',
         verificationImage: cloudinaryResult.secure_url,
       });
       return res.status(201).json({
