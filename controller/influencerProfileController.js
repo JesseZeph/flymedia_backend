@@ -38,7 +38,6 @@ module.exports = {
       });
     }
   },
-
   uploadVerification: async (req, res) => {
     if (!req.file) {
       return res
@@ -53,7 +52,7 @@ module.exports = {
         scanUrl: cloudinaryResult.secure_url,
       });
       await InfluencerProfile.findByIdAndUpdate(details.influencer_id, {
-        verification: 'Pending',
+        verificationStatus: 'Pending',
         verificationImage: cloudinaryResult.secure_url,
       });
       return res.status(201).json({
@@ -88,7 +87,7 @@ module.exports = {
       const influencerProfile = await InfluencerProfile.findByIdAndUpdate(
         verification.influencer,
         {
-          verification: details.verification,
+          verificationStatus: details.verification,
           verificationImage: verification.scanUrl,
         },
         {
@@ -215,6 +214,14 @@ module.exports = {
           .json({ success: false, message: 'Influencer profile not found' });
       }
 
+      // if (existingProfile.userId.toString() !== userId.toString()) {
+      //   return res.status(403).json({
+      //     success: false,
+      //     message:
+      //       "Unauthorized. You don't have permission to update this profile.",
+      //   });
+      // }
+
       if (req.file) {
         existingProfile.imageURL = (
           await cloudinary.uploader.upload(req.file.path)
@@ -315,7 +322,7 @@ module.exports = {
         niches: simplifiedNiches,
         bio: userProfile.bio,
         userId: userProfile.userId,
-        verification: userProfile.verification,
+        verificationStatus: userProfile.verificationStatus,
         points: userProfile.points,
       };
 
