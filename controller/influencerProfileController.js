@@ -72,7 +72,7 @@ module.exports = {
   verifyInfluencer: async (req, res) => {
     const details = req.body;
     try {
-      const verification = await InfluencerVerification.findById(
+      const verification = await InfluencerVerification.findByIdAndDelete(
         details.verification_id
       );
   
