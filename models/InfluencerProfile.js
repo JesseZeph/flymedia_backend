@@ -58,7 +58,7 @@ const InfluencerProfileSchema = new mongoose.Schema({
     required: true,
     // unique: true,
   },
-  verificationStatus: {
+  verification: {
     type: String,
     enum: ['Not Started', 'Pending', 'Verified', 'Failed'],
     default: 'Not Started',

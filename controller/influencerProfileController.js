@@ -38,6 +38,7 @@ module.exports = {
       });
     }
   },
+
   uploadVerification: async (req, res) => {
     if (!req.file) {
       return res
@@ -87,7 +88,7 @@ module.exports = {
       const influencerProfile = await InfluencerProfile.findByIdAndUpdate(
         verification.influencer,
         {
-          verificationStatus: details.verification,
+          verification: details.verification,
           verificationImage: verification.scanUrl,
         },
         {
@@ -213,14 +214,6 @@ module.exports = {
           .status(404)
           .json({ success: false, message: 'Influencer profile not found' });
       }
-
-      // if (existingProfile.userId.toString() !== userId.toString()) {
-      //   return res.status(403).json({
-      //     success: false,
-      //     message:
-      //       "Unauthorized. You don't have permission to update this profile.",
-      //   });
-      // }
 
       if (req.file) {
         existingProfile.imageURL = (
