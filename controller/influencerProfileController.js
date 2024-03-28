@@ -315,7 +315,7 @@ module.exports = {
         niches: simplifiedNiches,
         bio: userProfile.bio,
         userId: userProfile.userId,
-        verificationStatus: userProfile.verificationStatus,
+        verification: userProfile.verification,
         points: userProfile.points,
       };
 
