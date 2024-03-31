@@ -4,8 +4,7 @@ const InfluencerVerification = require('../models/influencerVerification');
 const Niche = require('../models/Niche');
 const User = require('../models/User');
 const Points = require('../models/influencer.points');
-const VerifyInfluencerNotifier = require('./event_handlers/verifyInfluencer')
-
+const VerifyInfluencerNotifier = require('./event_handlers/verifyInfluencer');
 
 const EventEmitter = require('events');
 
@@ -14,7 +13,6 @@ const eventEmitter = new EventEmitter();
 eventEmitter.on('profile-verified', (mail, name, image) => {
   VerifyInfluencerNotifier.sendMail(mail, name, image);
 });
-
 
 module.exports = {
   fetchPendingVerifications: async (req, res) => {
@@ -75,15 +73,14 @@ module.exports = {
       const verification = await InfluencerVerification.findById(
         details.verification_id
       );
-  
       if (!verification) {
         return res.status(404).json({
           status: false,
           message: 'Verification not found',
-          data: null
+          data: null,
         });
       }
-  
+
       const influencerProfile = await InfluencerProfile.findByIdAndUpdate(
         verification.influencer,
         {
@@ -94,14 +91,15 @@ module.exports = {
           returnDocument: 'after',
         }
       );
-  
-      eventEmitter.emit(
-        'profile-verified',
-        influencerProfile.email,
-        influencerProfile.firstAndLastName,
-        verification.scanUrl
-      );
-      
+      if (influencerProfile.verificationStatus == 'Verified') {
+        eventEmitter.emit(
+          'profile-verified',
+          influencerProfile.email,
+          influencerProfile.firstAndLastName,
+          verification.scanUrl
+        );
+      }
+
       return res.status(200).json({
         status: true,
         message: 'Verification complete.',
@@ -116,7 +114,7 @@ module.exports = {
       });
     }
   },
-  
+
   uploadProfilePhoto: async (req, res) => {
     if (!req.file) {
       return res
