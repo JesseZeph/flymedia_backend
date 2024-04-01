@@ -39,14 +39,16 @@ module.exports = {
 
       await newCompany.save();
 
-      res
-        .status(200)
-        .json({ success: true, message: 'Company Details added successfully' });
+      res.status(200).json({
+        status: true,
+        message: 'Company Details added successfully',
+        data: newCompany,
+      });
     } catch (error) {
-      console.error(error);
       res.status(500).json({
-        success: false,
-        message: `Adding Company Details failed. Error: ${error.message}`,
+        status: false,
+        message: `Adding Company Details failed`,
+        data: null,
       });
     }
   },
