@@ -45,12 +45,12 @@ module.exports = {
       //     message: 'Maximum allowed campaigns reached',
       //   });
       // }
-      if (!req.file) {
-        return res
-          .status(400)
-          .json({ success: false, message: 'No file provided' });
-      }
-      const cloudinaryResult = await cloudinary.uploader.upload(req.file.path);
+      // if (!req.file) {
+      //   return res
+      //     .status(400)
+      //     .json({ success: false, message: 'No file provided' });
+      // }
+      // const cloudinaryResult = await cloudinary.uploader.upload(req.file.path);
 
       const requiredFields = [
         'companyDescription',
@@ -71,11 +71,9 @@ module.exports = {
           message: `Missing required fields: ${missingFields.join(', ')}`,
         });
       }
-      const newImage = new CampaignUpload({
+      const clientCampaign = new CampaignUpload({
         user: user_id,
         company: company._id,
-        companyDescription: req.body.companyDescription,
-        imageUrl: cloudinaryResult.secure_url,
         jobTitle: req.body.jobTitle,
         country: req.body.country,
         // rateFrom: req.body.rateFrom,
@@ -85,14 +83,11 @@ module.exports = {
         viewsRequired: req.body.viewsRequired,
         jobDescription: req.body.jobDescription,
       });
-      const savedImage = await newImage.save();
+      const saveCampaign = await clientCampaign.save();
       res.status(200).json({
         success: true,
-        message: 'File Uploaded!',
-        campaignUpload: {
-          ...savedImage.toObject(),
-          imageUrl: cloudinaryResult.secure_url,
-        },
+        message: 'Campaign saved successfully',
+        data: saveCampaign
       });
       // company.campaignsInMonth += 1;
       // await company.save();
@@ -106,40 +101,43 @@ module.exports = {
   },
   
   editCampaign: async (req, res) => {
-    const campaignId = req.params.id;
+    try {
+      
+      const {
+        campaignId, jobTitle, country, rate, viewsRequired, minFollowers, jobDescription
+      } = req.body;
 
-    if(!campaignId) {
-      return res.status(403).json({
-        success: false,
-        message: "Campaign not found",  
-      });
+      let existingCampaign = await CampaignUpload.findById(campaignId);
+  
+      if(!existingCampaign) {
+        return res.status(403).json({
+          success: false,
+          message: "Existing campaign not found",  
+        });
+      }
+  
+      if(jobTitle) existingCampaign.jobTitle = jobTitle;
+      if(country) existingCampaign.country = country;
+      if(rate) existingCampaign.rate = rate;
+      if(viewsRequired) existingCampaign.viewsRequired = viewsRequired;
+      if(minFollowers) existingCampaign.minFollowers = minFollowers;
+      if(jobDescription) existingCampaign.jobDescription = jobDescription;
+  
+      const updatedCampaign = await existingCampaign.save();
+      res.status(200).json({
+        success: true,
+        message: "Campaign updated successfully",
+        campaign: updatedCampaign,
+      })
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+      success: false,
+      message: "Error updating campaign",
+      error: error.message
+    });
+      
     }
-
-    let existingCampaign = await CampaignUpload.findById(campaignId);
-
-    if(!existingCampaign) {
-      return res.status(403).json({
-        success: false,
-        message: "Existing campaign not found",  
-      });
-    }
-
-    const {
-      companyDescription, jobTitle, country, rate, viewsRequired
-      , minFollowers, jobDescription
-    } = req.body;
-
-    if (companyDescription) existingCampaign.companyDescription = companyDescription;
-    if(jobTitle) existingCampaign.jobTitle = jobTitle;
-    if(country) existingCampaign.country = country;
-    if(rate) existingCampaign.rate = rate;
-    if(viewsRequired) existingCampaign.viewsRequired = viewsRequired;
-    if(minFollowers) existingCampaign.minFollowers = minFollowers;
-    if(jobDescription) existingCampaign.jobDescription = jobDescription;
-
-
-
-
   },
 
   getCampaignImageAndDesc: async (req, res) => {

@@ -1,34 +1,33 @@
 const router = require('express').Router();
-const UploadImageController = require('../controller/campaignUploadController');
+const UploadCampaign = require('../controller/campaignUploadController');
 const AssignedCampaignController = require('../controller/assignedCampaignController');
 const {
   verifyAndAuthorization,
   verifyClient,
   verifyInfluencer,
 } = require('../middleware/verifyToken');
-const upload = require('../middleware/multer');
 
-router.post('/assign', verifyClient, UploadImageController.assignInfluencer);
-router.post('/accept', verifyInfluencer, UploadImageController.acceptCampaign);
+router.post('/assign', verifyClient, UploadCampaign.assignInfluencer);
+router.post('/accept', verifyInfluencer, UploadCampaign.acceptCampaign);
 router.post(
   '/',
-  verifyAndAuthorization,
-  upload.single('image'),
-  UploadImageController.uploadCampaignImageAndDesc
+  verifyAndAuthorization,  UploadCampaign.uploadCampaignImageAndDesc
 );
 
-// router.get('/:id', UploadImageController.getCampaignImageAndDesc);
+// router.get('/:id', UploadCampaign.getCampaignImageAndDesc);
 router.delete(
   '/delete/:id',
   verifyAndAuthorization,
-  UploadImageController.deleteCampaign
+  UploadCampaign.deleteCampaign
 );
-router.get('/campaigns', UploadImageController.getAllCampaignImageAndDesc);
-router.get('/search/:key', UploadImageController.searchCampaign);
+router.get('/campaigns',  UploadCampaign.getAllCampaignImageAndDesc);
+router.put('/edit', verifyClient, UploadCampaign.editCampaign);
+
+router.get('/search/:key', UploadCampaign.searchCampaign);
 router.get(
   '/client',
   verifyAndAuthorization,
-  UploadImageController.clientSpecificCampaign
+  UploadCampaign.clientSpecificCampaign
 );
 router.get(
   '/assign/:id',

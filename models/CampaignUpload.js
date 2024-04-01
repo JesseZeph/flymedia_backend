@@ -12,14 +12,6 @@ const companyDetailsSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
-    imageUrl: {
-      type: String,
-      required: true,
-    },
-    companyDescription: {
-      type: String,
-      required: true,
-    },
     jobTitle: { type: String, required: true },
     country: { type: String, required: true },
     // rateFrom: { type: String, required: true },
