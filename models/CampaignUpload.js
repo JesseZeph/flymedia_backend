@@ -31,6 +31,7 @@ const companyDetailsSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: [
+        'Less than 10k',
         '10k - 50k',
         '50k - 200k',
         '200k - 500k',

@@ -104,6 +104,43 @@ module.exports = {
       });
     }
   },
+  
+  editCampaign: async (req, res) => {
+    const campaignId = req.params.id;
+
+    if(!campaignId) {
+      return res.status(403).json({
+        success: false,
+        message: "Campaign not found",  
+      });
+    }
+
+    let existingCampaign = await CampaignUpload.findById(campaignId);
+
+    if(!existingCampaign) {
+      return res.status(403).json({
+        success: false,
+        message: "Existing campaign not found",  
+      });
+    }
+
+    const {
+      companyDescription, jobTitle, country, rate, viewsRequired
+      , minFollowers, jobDescription
+    } = req.body;
+
+    if (companyDescription) existingCampaign.companyDescription = companyDescription;
+    if(jobTitle) existingCampaign.jobTitle = jobTitle;
+    if(country) existingCampaign.country = country;
+    if(rate) existingCampaign.rate = rate;
+    if(viewsRequired) existingCampaign.viewsRequired = viewsRequired;
+    if(minFollowers) existingCampaign.minFollowers = minFollowers;
+    if(jobDescription) existingCampaign.jobDescription = jobDescription;
+
+
+
+
+  },
 
   getCampaignImageAndDesc: async (req, res) => {
     const logoWithDescId = req.params.id;
