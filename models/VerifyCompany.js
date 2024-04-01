@@ -6,7 +6,10 @@ const CompanySchema = new mongoose.Schema(
     companyHq: { type: String, required: true },
     website: { type: String, required: false },
     companyEmail: { type: String, required: true },
-    memberContact: { type: String, required: true },
+    phoneContact: { type: String, required: true },
+    contactPerson: { type: String, required: false },
+    companyDescription: { type: String, required: true },
+    logoImage: { type: String, required: true },
     isVerified: { type: Boolean, default: false },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
