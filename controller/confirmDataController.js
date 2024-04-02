@@ -32,7 +32,11 @@ const confirmCompanyVerified = async (req, res) => {
         : 'Company not verified.';
       return res
         .status(200)
-        .json({ is_verified: company.isVerified, message: message });
+        .json({
+          is_verified: company.isVerified,
+          message: message,
+          company: company,
+        });
     }
     return res
       .status(404)
