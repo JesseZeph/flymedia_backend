@@ -53,12 +53,12 @@ module.exports = {
       // const cloudinaryResult = await cloudinary.uploader.upload(req.file.path);
 
       const requiredFields = [
-        'companyDescription',
         'jobTitle',
         'country',
         // 'rateFrom',
         'rate',
         'viewsRequired',
+        'typeOfInfluencer',
         // 'maxApplicants',
         'minFollowers',
         'jobDescription',
@@ -78,6 +78,7 @@ module.exports = {
         country: req.body.country,
         // rateFrom: req.body.rateFrom,
         rate: req.body.rate,
+        typeOfInfluencer: req.body.typeOfInfluencer,
         // maxApplicants: req.body.maxApplicants,
         minFollowers: req.body.minFollowers,
         viewsRequired: req.body.viewsRequired,
@@ -104,7 +105,7 @@ module.exports = {
     try {
       
       const {
-        campaignId, jobTitle, country, rate, viewsRequired, minFollowers, jobDescription
+        campaignId, jobTitle, country, rate, viewsRequired, typeOfInfluencer, minFollowers, jobDescription
       } = req.body;
 
       let existingCampaign = await CampaignUpload.findById(campaignId);
@@ -119,6 +120,7 @@ module.exports = {
       if(jobTitle) existingCampaign.jobTitle = jobTitle;
       if(country) existingCampaign.country = country;
       if(rate) existingCampaign.rate = rate;
+      if(typeOfInfluencer) existingCampaign.typeOfInfluencer = typeOfInfluencer;
       if(viewsRequired) existingCampaign.viewsRequired = viewsRequired;
       if(minFollowers) existingCampaign.minFollowers = minFollowers;
       if(jobDescription) existingCampaign.jobDescription = jobDescription;

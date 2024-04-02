@@ -39,6 +39,11 @@ const companyDetailsSchema = new mongoose.Schema(
       default: null,
     },
 
+    typeOfInfluencer: {
+      type: String, required: true, enum: ['TikTok Influencer', 'Twitter Influencer', 'Facebook Influecer', 'Instagram Influecer'],
+      default: 'TikTok Influncer'
+    },
+
     isPaidFor: {
       type: Boolean,
       default: false,
