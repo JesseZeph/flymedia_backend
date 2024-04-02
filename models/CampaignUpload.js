@@ -14,11 +14,11 @@ const companyDetailsSchema = new mongoose.Schema(
     },
     jobTitle: { type: String, required: true },
     country: { type: String, required: true },
-    // rateFrom: { type: String, required: true },
     rate: { type: String, required: true },
-    // maxApplicants: { type: Number, required: true },
+    companyName: { type: String, required: true },
+    imageUrl: { type: String, required: true },
+    companyDescription: { type: String, required: true },
     minFollowers: { type: Number, required: true },
-    // numberOfApplicants: { type: Number, default: 0 },
     viewsRequired: {
       type: String,
       required: true,
@@ -31,7 +31,6 @@ const companyDetailsSchema = new mongoose.Schema(
         '1m and above',
       ],
     },
-    // applicationsFull: { type: Boolean, default: false },
     jobDescription: { type: String, required: true },
     assigned: {
       type: mongoose.Schema.Types.ObjectId,
@@ -40,8 +39,15 @@ const companyDetailsSchema = new mongoose.Schema(
     },
 
     typeOfInfluencer: {
-      type: String, required: true, enum: ['TikTok Influencer', 'Twitter Influencer', 'Facebook Influencer', 'Instagram Influencer'],
-      default: 'TikTok Influencer'
+      type: String,
+      required: true,
+      enum: [
+        'TikTok Influencer',
+        'Twitter Influencer',
+        'Facebook Influencer',
+        'Instagram Influencer',
+      ],
+      default: 'TikTok Influencer',
     },
 
     isPaidFor: {

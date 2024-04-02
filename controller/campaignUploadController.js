@@ -29,37 +29,25 @@ module.exports = {
       const { user_id, ...others } = req.body;
       const company = await Company.findOne({ userId: user_id }).exec();
       if (!company) {
-        return res
-          .status(404)
-          .json({ success: false, message: 'Company not found for the user' });
+        return res.status(404).json({
+          status: false,
+          message: 'Company not found for the user',
+          data: null,
+        });
       }
       if (!company.isVerified) {
         return res.status(403).json({
-          success: false,
+          status: false,
           message: 'Company not verified. Please wait for admin approval.',
+          data: null,
         });
       }
-      // if (company.campaignsInMonth >= req.body.max_campaigns) {
-      //   return res.status(406).json({
-      //     success: false,
-      //     message: 'Maximum allowed campaigns reached',
-      //   });
-      // }
-      // if (!req.file) {
-      //   return res
-      //     .status(400)
-      //     .json({ success: false, message: 'No file provided' });
-      // }
-      // const cloudinaryResult = await cloudinary.uploader.upload(req.file.path);
-
       const requiredFields = [
         'jobTitle',
         'country',
-        // 'rateFrom',
         'rate',
         'viewsRequired',
         'typeOfInfluencer',
-        // 'maxApplicants',
         'minFollowers',
         'jobDescription',
       ];
@@ -67,8 +55,9 @@ module.exports = {
 
       if (missingFields.length > 0) {
         return res.status(400).json({
-          success: false,
+          status: false,
           message: `Missing required fields: ${missingFields.join(', ')}`,
+          data: null,
         });
       }
       const clientCampaign = new CampaignUpload({
@@ -76,69 +65,75 @@ module.exports = {
         company: company._id,
         jobTitle: req.body.jobTitle,
         country: req.body.country,
-        // rateFrom: req.body.rateFrom,
         rate: req.body.rate,
         typeOfInfluencer: req.body.typeOfInfluencer,
-        // maxApplicants: req.body.maxApplicants,
         minFollowers: req.body.minFollowers,
         viewsRequired: req.body.viewsRequired,
         jobDescription: req.body.jobDescription,
+        companyName: req.body.companyName,
+        companyDescription: req.body.companyDescription,
+        imageUrl: req.body.imageUrl,
       });
       const saveCampaign = await clientCampaign.save();
       res.status(200).json({
-        success: true,
-        message: 'Campaign saved successfully',
-        data: saveCampaign
+        status: true,
+        message: 'Campaign added successfully',
+        data: saveCampaign,
       });
-      // company.campaignsInMonth += 1;
-      // await company.save();
     } catch (error) {
       console.error({ error });
       return res.status(500).json({
-        success: false,
+        status: false,
         message: 'Error uploading or saving the file',
+        data: null,
       });
     }
   },
-  
+
   editCampaign: async (req, res) => {
     try {
-      
       const {
-        campaignId, jobTitle, country, rate, viewsRequired, typeOfInfluencer, minFollowers, jobDescription
+        campaignId,
+        jobTitle,
+        country,
+        rate,
+        viewsRequired,
+        typeOfInfluencer,
+        minFollowers,
+        jobDescription,
       } = req.body;
 
       let existingCampaign = await CampaignUpload.findById(campaignId);
-  
-      if(!existingCampaign) {
+
+      if (!existingCampaign) {
         return res.status(403).json({
           success: false,
-          message: "Existing campaign not found",  
+          message: 'Existing campaign not found',
         });
       }
-  
-      if(jobTitle) existingCampaign.jobTitle = jobTitle;
-      if(country) existingCampaign.country = country;
-      if(rate) existingCampaign.rate = rate;
-      if(typeOfInfluencer) existingCampaign.typeOfInfluencer = typeOfInfluencer;
-      if(viewsRequired) existingCampaign.viewsRequired = viewsRequired;
-      if(minFollowers) existingCampaign.minFollowers = minFollowers;
-      if(jobDescription) existingCampaign.jobDescription = jobDescription;
-  
+
+      if (jobTitle) existingCampaign.jobTitle = jobTitle;
+      if (country) existingCampaign.country = country;
+      if (rate) existingCampaign.rate = rate;
+      if (typeOfInfluencer)
+        existingCampaign.typeOfInfluencer = typeOfInfluencer;
+      if (viewsRequired) existingCampaign.viewsRequired = viewsRequired;
+      if (minFollowers) existingCampaign.minFollowers = minFollowers;
+      if (jobDescription) existingCampaign.jobDescription = jobDescription;
+
       const updatedCampaign = await existingCampaign.save();
       res.status(200).json({
         success: true,
-        message: "Campaign updated successfully",
+        message: 'Campaign updated successfully',
         campaign: updatedCampaign,
-      })
+      });
     } catch (error) {
       console.error(error);
       res.status(500).json({
-      success: false,
-      message: "Error updating campaign",
-      error: error.message
-    });
-      
+        success: false,
+        message: 'Error updating campaign',
+        error: error.message,
+      });
     }
   },
 
