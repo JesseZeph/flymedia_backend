@@ -11,8 +11,13 @@ const EventEmitter = require('events');
 
 const eventEmitter = new EventEmitter();
 
-async function updateRejectedCampaign(campignId) {
-  await CampaignUpload.findByIdAndUpdate(campignId, { assigned: null });
+async function updateRejectedCampaign(campaignId) {
+  try {
+    await CampaignUpload.findByIdAndUpdate(campaignId, { assigned: null });
+    await ActiveCampaign.findOneAndDelete({ campaign: campaignId });
+  } catch (error) {
+    console.log({ error });
+  }
 }
 
 eventEmitter.on('create-group', (client, influencer, campaign) => {
@@ -253,7 +258,7 @@ module.exports = {
           data: null,
         });
       }
-      await ActiveCampaign.findOneAndDelete({ campaign: details.campaign_id });
+      // await ActiveCampaign.findOneAndDelete({ campaign: details.campaign_id });
 
       const campaign = new ActiveCampaign({
         campaign: details.campaign_id,
