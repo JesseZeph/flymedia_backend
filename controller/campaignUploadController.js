@@ -91,9 +91,9 @@ module.exports = {
   },
 
   editCampaign: async (req, res) => {
+    const campaignId = req.params.id
     try {
       const {
-        campaignId,
         jobTitle,
         country,
         rate,

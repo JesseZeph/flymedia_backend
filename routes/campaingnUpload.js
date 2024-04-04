@@ -21,7 +21,7 @@ router.delete(
   UploadCampaign.deleteCampaign
 );
 router.get('/campaigns',  UploadCampaign.getAllCampaignImageAndDesc);
-router.put('/edit', verifyClient, UploadCampaign.editCampaign);
+router.put('/edit/:id', verifyClient, UploadCampaign.editCampaign);
 
 router.get('/search/:key', UploadCampaign.searchCampaign);
 router.get(
