@@ -93,7 +93,7 @@ module.exports = {
   editCampaign: async (req, res) => {
     try {
       const {
-        id,
+        _id,
         jobTitle,
         country,
         rate,
@@ -103,7 +103,7 @@ module.exports = {
         jobDescription,
       } = req.body;
 
-      let existingCampaign = await CampaignUpload.findById(id);
+      let existingCampaign = await CampaignUpload.findById(_id);
 
       if (!existingCampaign) {
         return res.status(403).json({
