@@ -102,27 +102,6 @@ module.exports = {
         minFollowers,
         jobDescription,
       } = req.body;
-
-      // let existingCampaign = await CampaignUpload.findById(_id);
-
-      // if (!existingCampaign) {
-      //   return res.status(403).json({
-      //     status: false,
-      //     message: 'Existing campaign not found',
-      //     data: null,
-      //   });
-      // }
-
-      // if (jobTitle) existingCampaign.jobTitle = jobTitle;
-      // if (country) existingCampaign.country = country;
-      // if (rate) existingCampaign.rate = rate;
-      // if (typeOfInfluencer)
-      //   existingCampaign.typeOfInfluencer = typeOfInfluencer;
-      // if (viewsRequired) existingCampaign.viewsRequired = viewsRequired;
-      // if (minFollowers) existingCampaign.minFollowers = minFollowers;
-      // if (jobDescription) existingCampaign.jobDescription = jobDescription;
-
-      // const updatedCampaign = await existingCampaign.save();
       const updatedCampaign = await CampaignUpload.findByIdAndUpdate(
         _id,
         {
