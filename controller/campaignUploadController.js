@@ -93,7 +93,7 @@ module.exports = {
   editCampaign: async (req, res) => {
     try {
       const {
-        campaignId,
+        id,
         jobTitle,
         country,
         rate,
@@ -103,12 +103,13 @@ module.exports = {
         jobDescription,
       } = req.body;
 
-      let existingCampaign = await CampaignUpload.findById(campaignId);
+      let existingCampaign = await CampaignUpload.findById(id);
 
       if (!existingCampaign) {
         return res.status(403).json({
-          success: false,
+          status: false,
           message: 'Existing campaign not found',
+          data: null,
         });
       }
 
@@ -123,16 +124,15 @@ module.exports = {
 
       const updatedCampaign = await existingCampaign.save();
       res.status(200).json({
-        success: true,
+        status: true,
         message: 'Campaign updated successfully',
-        campaign: updatedCampaign,
+        data: updatedCampaign,
       });
     } catch (error) {
-      console.error(error);
       res.status(500).json({
-        success: false,
+        status: false,
         message: 'Error updating campaign',
-        error: error.message,
+        data: null,
       });
     }
   },
