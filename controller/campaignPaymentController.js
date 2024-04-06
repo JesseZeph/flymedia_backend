@@ -73,12 +73,12 @@ const paymentSuccess = async (req, res) => {
 
       await Campaign.findByIdAndUpdate(campaignId, {
         isPaidFor: true,
-      })
+      });
       res.status(200).json({
         status: true,
         message: 'Payment Successful',
         data: savedCampaignPayment,
-      });   
+      });
     } else {
       console.error('Payment Failed - Not Paid');
       return res.status(400).json({
@@ -97,7 +97,24 @@ const paymentSuccess = async (req, res) => {
   }
 };
 
+const webhookHandler = async (req, res) => {
+  const payload = req.body;
+  const signature = req.headers['stripe-signature'];
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      payload,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+    console.log(`This is a successful stripe event : ${event}`);
+  } catch (error) {
+    console.log(`This is a failed stripe event error : ${error}`);
+  }
+};
+
 module.exports = {
   initiateCampaignPayment,
   paymentSuccess,
+  webhookHandler,
 };
