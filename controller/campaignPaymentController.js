@@ -111,6 +111,8 @@ const webhookHandler = async (req, res) => {
   } catch (error) {
     console.log(`This is a failed stripe event error : ${error}`);
   }
+
+  res.status(200).json({ message: 'Event recieved successfully' });
 };
 
 module.exports = {
